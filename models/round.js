@@ -4,6 +4,6 @@ const PlayedCardSchema = require('./playedCard');
 
 module.exports = roundSchema = mongoose.Schema({
     status: {type:String, required: true},
-    roundCard: {type:{RoundCardSchema}, required: true},
-    playedCards: {type:{PlayedCardSchema}, required: true}
+    roundCard: {type:[RoundCardSchema], required: true},
+    playedCards: {type:[PlayedCardSchema], required: true}
 });
