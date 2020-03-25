@@ -1,5 +1,5 @@
 const mongoose = require ('mongoose');
-const Game = require('./models/game');
+const Game = require('../models/game');
 
 mongoose.connect('mongodb+srv://Solene:ErnAC6bJ95UzC8M4@cluster0-flsqa.mongodb.net/CardsAgainstCoronavirus?retryWrites=true&w=majority')
 .then(()=>{
