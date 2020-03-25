@@ -2,9 +2,9 @@
   "name": "back-end",
   "version": "1.0.0",
   "description": "",
-  "main": "test.js",
+  "main": "game.test.js",
   "scripts": {
-    "test": "mocha -w"
+    "test": "mocha -w test/**/*.test.js"
   },
   "repository": {
     "type": "git",
@@ -14,9 +14,13 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/codenights/back-end#readme",
   "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.9.5"
+  },
+  "devDependencies": {
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
-    "mocha": "^7.1.1",
-    "mongoose": "^5.9.5"
+    "mocha": "^7.1.1"
   }
 }
