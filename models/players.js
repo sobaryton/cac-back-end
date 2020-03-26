@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const CardSchema = require('./card');
+const HandCardSchema = require('./handCard');
 
 module.exports =  playersSchema = mongoose.Schema({
     pseudo:{type:String, required: true},
-    playerCards:{type: [CardSchema], required: true}
+    playerCards:{type: [HandCardSchema], required: true}
 });
