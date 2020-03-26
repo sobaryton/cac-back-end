@@ -4,8 +4,9 @@ const app = require('../../app');
 const expect = chai.expect;
 const Game = require('../../models/game');
 const mongoose = require ('mongoose');
+const chaiSubset = require('chai-subset');
 
-mongoose.connect('mongodb+srv://Solene:ErnAC6bJ95UzC8M4@cluster0-flsqa.mongodb.net/CardsAgainstCoronavirus?retryWrites=true&w=majority')
+mongoose.connect('mongodb+srv://Solene:ErnAC6bJ95UzC8M4@cluster0-flsqa.mongodb.net/CardsAgainstCoronavirus?retryWrites=true&w=majority',  { useUnifiedTopology: true, useNewUrlParser: true })
 .then(()=>{
     console.log('Successfully connected to Mongo DB Atlas');
 })
@@ -15,13 +16,18 @@ mongoose.connect('mongodb+srv://Solene:ErnAC6bJ95UzC8M4@cluster0-flsqa.mongodb.n
 });
 
 chai.use(chaiHttp);
+chai.use(chaiSubset);
 
 describe('Game API', () => {
     describe('GET a game information /game/:id', () => {
         let game;
+        let startedGame;
+        let startedGameSchema;
         beforeEach(async () => {
             game = new Game();
-            startedGame = new Game({
+            await game.save();
+
+            startedGameSchema = {
                 status: 'in progress',
                 players: [
                    { 
@@ -35,45 +41,44 @@ describe('Game API', () => {
                 ],
                 rounds: [
                     {
-                        status: 'finished',
+                        roundStatus: 'finished',
                         roundCard: {sentence: 'blablabla'},
                         playedCards: [
                             {
                                 playerId: 'playerID',
-                                votes: {
+                                votes: [{
                                     emotion: 'blabla',
                                     playerId: 'playerID2'
-                                },
+                                }],
                                 handCardId: 'hand card1'
                             },
                             {
                                 playerId: 'playerID2',
-                                votes: {
+                                votes: [{
                                     emotion: 'blaa',
                                     playerId: 'playerID'
-                                },
+                                }],
                                 handCardId: 'hand card2'
                             }
                         ]
                     },
                     {
-                        status: 'in progress',
+                        roundStatus: 'in progress',
                         roundCard: {sentence: 'round card 2'},
                         playedCards: []
                     }
                 ]
-            });
-            await game.save();
+            };
+            startedGame = new Game(startedGameSchema);
             await startedGame.save();
-        });
-
-        it('should return successful status 200', async () => {
-            const res = await chai.request(app)
-                .get(`/game/${game.id}`)
-            expect(res.status).to.equal(200);
-        });
+        });        
 
         describe ('New game object structure', () => {
+            it('should return successful status 200', async () => {
+                const res = await chai.request(app)
+                    .get(`/game/${game.id}`)
+                expect(res.status).to.equal(200);
+            });
             it('should be an object', async () => {
                 const res = await chai.request(app)
                     .get(`/game/${game.id}`)
@@ -82,7 +87,7 @@ describe('Game API', () => {
             it('should contain the requested game id', async () => {
                 const res = await chai.request(app)
                     .get(`/game/${game.id}`)
-                expect(res.body.id).to.equal(game.id);
+                expect(res.body._id).to.equal(game.id);
             });
             it('should have a status of "waiting"', async () => {
                 const res = await chai.request(app)
@@ -98,6 +103,14 @@ describe('Game API', () => {
                 const res = await chai.request(app)
                     .get(`/game/${game.id}`)
                 expect(res.body.rounds).to.be.an('array');
+            });
+        });
+
+        describe('Existing Game structure', () => {
+            it('should be an object with the same structure as started game', async () => {
+                const res = await chai.request(app)
+                    .get(`/game/${startedGame.id}`)
+                expect(res.body).to.containSubset(startedGameSchema);
             });
         });
     });

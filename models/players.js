@@ -3,5 +3,5 @@ const HandCardSchema = require('./handCard');
 
 module.exports =  playersSchema = mongoose.Schema({
     pseudo:{type:String, required: true},
-    playerCards:{type: [HandCardSchema], required: true}
+    playerCards:{type: [String], required: true}
 });
