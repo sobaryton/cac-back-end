@@ -4,6 +4,7 @@ const router = express.Router();
 const gameCtrl = require('../controllers/game');
 
 router.get('/:id', gameCtrl.getAGame);
-router.post('/', gameCtrl.beginAGame);
+router.post('/', gameCtrl.createAGame);
+router.put('/:id', gameCtrl.startAGame);
 
 module.exports = router;

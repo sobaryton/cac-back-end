@@ -14,7 +14,7 @@ exports.getAGame = (req,res,next) => {
     )
 };
 
-exports.beginAGame = (req,res,next) => {
+exports.createAGame = (req,res,next) => {
     let newGame = new Game();
 
     newGame.save().then(
@@ -28,3 +28,16 @@ exports.beginAGame = (req,res,next) => {
         }
     )
 };
+
+exports.startAGame = (req,res,next) => {
+    Game.findOneAndUpdate({_id: req.params.id}, { status: 'in progress' }, {new: true, useFindAndModify: false}).then(
+        (game) => {
+            res.status(200).json({ message: 'New game began', game });
+        }
+    )
+    .catch(
+        (err) => {
+            res.status(400).json({ error: err });
+        }
+    )
+}

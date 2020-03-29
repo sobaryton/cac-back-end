@@ -2,7 +2,6 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const app = require('../../app');
 const expect = chai.expect;
-const Game = require('../../src/models/game');
 const mongoose = require ('mongoose');
 const chaiSubset = require('chai-subset');
 

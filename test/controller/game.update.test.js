@@ -18,25 +18,28 @@ mongoose.connect('mongodb+srv://Solene:ErnAC6bJ95UzC8M4@cluster0-flsqa.mongodb.n
 chai.use(chaiHttp);
 chai.use(chaiSubset);
 
-// describe('UPDATE a game information /game/:id', () => {    
+describe('UPDATE a game information /game/:id', () => {    
 
-//     describe ('Begin a game', () => {
-//         xit('should UPDATE a given game to have the status of in progress', async () => {
-//             let newGame = {
-//                 status: 'in progress',
-//                 rounds: [],
-//                 players: []
-//             }
-//             newGame.save().then(
-//                 () => {
-//                     const res = await chai.request(app)
-//                     .put(`/game/${game.id}`)
-//                     .send(newGame);
-//                     expect(res.body.status).to.equal('in progress');
-//                 }
-//             )
-            
-//         });
+    describe ('Begin a game', () => {
+        let game;
+        let beganGame;
+        beforeEach( async () => {
+            game = new Game();
+            await game.save();
+
+            beganGame = new Game({
+                status: 'in progress',
+                rounds: [],
+                players: []
+            });
+            await beganGame.save();
+        })
+        it('should UPDATE a given game to have the status of in progress', async () => {
+            const res = await chai.request(app)
+            .put(`/game/${game.id}`);
+            expect(res.body.game.status).to.equal('in progress');
+            expect(res.status).to.equal(200);
+        });
         
-//     });
-// });
+    });
+});
