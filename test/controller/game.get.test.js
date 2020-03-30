@@ -23,6 +23,7 @@ describe('GET a game information /game/:id', () => {
     let startedGame;
     let startedGameSchema;
     beforeEach(async () => {
+
         game = new Game();
         await game.save();
 
@@ -70,6 +71,8 @@ describe('GET a game information /game/:id', () => {
         };
         startedGame = new Game(startedGameSchema);
         await startedGame.save();
+
+        
     });        
 
     describe ('New game object structure', () => {
@@ -93,11 +96,6 @@ describe('GET a game information /game/:id', () => {
                 .get(`/game/${game.id}`)
             expect(res.body.status).to.equal('waiting');
         });
-        xit('should have a list of participants, containing the current user', async () => {
-            const res = await chai.request(app)
-                .get(`/game/${game.id}`)
-            expect(res.body.status).to.equal('waiting');
-        });
         it('should have an empty list of rounds', async () => {
             const res = await chai.request(app)
                 .get(`/game/${game.id}`)
@@ -113,11 +111,197 @@ describe('GET a game information /game/:id', () => {
         });
     });
 
+    describe('Join an existing game', () => {
+        xit('should have a list of participants, containing the current user', async () => {
+            const res = await chai.request(app)
+                .get(`/game/${startedGame.id}`)
+            expect(res.body.players).to.have.length.above(1);
+        });
+        xit('if the game already began, or finished, it should not be possible to join', async () => {
+            
+        });
+    });
+
     describe('Existing Game structure', () => {
         it('should be an object with the same structure as started game', async () => {
             const res = await chai.request(app)
                 .get(`/game/${startedGame.id}`)
             expect(res.body).to.containSubset(startedGameSchema);
+        });
+        it('should contain at least two players', async () => {
+            const res = await chai.request(app)
+                .get(`/game/${startedGame.id}`)
+            expect(res.body.players).to.have.length.above(1);
+        });
+    });
+
+    describe('Get back a begun game', () => {
+        let finishedGame;
+        beforeEach( async () => {
+            finishedGame = new Game ({
+                status: 'finished',
+                players: [
+                    { 
+                        pseudo: 'soso',
+                        playerCards:['id1','id2','id3','id4','id5']
+                    },
+                    { 
+                        pseudo: 'nico',
+                        playerCards:['id6','id7','id8','id9','id10']
+                    }
+                ],
+                rounds: [
+                    {
+                        roundStatus: 'finished',
+                        roundCard: {sentence: 'blablabla1'},
+                        playedCards: [
+                            {
+                                playerId: 'playerID',
+                                votes: [{
+                                    emotion: 'blabla',
+                                    playerId: 'playerID2'
+                                }],
+                                handCardId: 'hand card1'
+                            },
+                            {
+                                playerId: 'playerID2',
+                                votes: [{
+                                    emotion: 'blaa',
+                                    playerId: 'playerID'
+                                }],
+                                handCardId: 'hand card2'
+                            }
+                        ]
+                    },
+                    {
+                        roundStatus: 'finished',
+                        roundCard: {sentence: 'blablabla2'},
+                        playedCards: [
+                            {
+                                playerId: 'playerID',
+                                votes: [{
+                                    emotion: 'blabla',
+                                    playerId: 'playerID2'
+                                }],
+                                handCardId: 'hand card3'
+                            },
+                            {
+                                playerId: 'playerID2',
+                                votes: [{
+                                    emotion: 'blaa',
+                                    playerId: 'playerID'
+                                }],
+                                handCardId: 'hand card4'
+                            }
+                        ]
+                    },
+                    {
+                        roundStatus: 'finished',
+                        roundCard: {sentence: 'blablabla3'},
+                        playedCards: [
+                            {
+                                playerId: 'playerID',
+                                votes: [{
+                                    emotion: 'blabla',
+                                    playerId: 'playerID2'
+                                }],
+                                handCardId: 'hand card5'
+                            },
+                            {
+                                playerId: 'playerID2',
+                                votes: [{
+                                    emotion: 'blaa',
+                                    playerId: 'playerID'
+                                }],
+                                handCardId: 'hand card6'
+                            }
+                        ]
+                    }, {
+                        roundStatus: 'finished',
+                        roundCard: {sentence: 'blablabla4'},
+                        playedCards: [
+                            {
+                                playerId: 'playerID',
+                                votes: [{
+                                    emotion: 'blabla',
+                                    playerId: 'playerID2'
+                                }],
+                                handCardId: 'hand card7'
+                            },
+                            {
+                                playerId: 'playerID2',
+                                votes: [{
+                                    emotion: 'blaa',
+                                    playerId: 'playerID'
+                                }],
+                                handCardId: 'hand card8'
+                            }
+                        ]
+                    },
+                    {
+                        roundStatus: 'finished',
+                        roundCard: {sentence: 'blablabla5'},
+                        playedCards: [
+                            {
+                                playerId: 'playerID',
+                                votes: [{
+                                    emotion: 'blabla',
+                                    playerId: 'playerID2'
+                                }],
+                                handCardId: 'hand card9'
+                            },
+                            {
+                                playerId: 'playerID2',
+                                votes: [{
+                                    emotion: 'blaa',
+                                    playerId: 'playerID'
+                                }],
+                                handCardId: 'hand card10'
+                            }
+                        ]
+                    }
+                ]
+            });
+            await finishedGame.save();
+        });
+
+        it('should have a round card', async () => {
+            const res = await chai.request(app)
+                .get(`/game/${startedGame.id}`)
+            expect(res.body.rounds[res.body.rounds.length-1].roundCard.sentence).to.not.equal('');
+        });
+
+        it('should have a list per player of hand cards', async () => {
+            const res = await chai.request(app)
+            .get(`/game/${startedGame.id}`);
+
+            expect(res.body.players).to.be.an('array');
+            res.body.players.forEach( async player => {
+                expect(player.playerCards).to.be.an('array');
+                expect(player.playerCards).to.have.length.above(1);
+            });
+        });
+        xit('should diplay the card of the actual player only', async () => {
+
+        });
+        it('if the game is in progress, should have only the last round in progress', async () => {
+            const res = await chai.request(app)
+            .get(`/game/${startedGame.id}`);
+
+            expect(res.body.status).to.equal('in progress');
+            expect(res.body.rounds[res.body.rounds.length-1].roundStatus).to.equal('in progress');
+            for(let i = 0; i<res.body.rounds.length-1; i++){
+                expect(res.body.rounds[i].roundStatus).to.equal('finished');
+            }
+        });
+        it('if the game is finished, all five rounds are finished', async () => {
+            const res = await chai.request(app)
+            .get(`/game/${finishedGame.id}`);
+
+            expect(res.body.status).to.equal('finished');
+            res.body.rounds.forEach( async round => {
+                expect(round.roundStatus).to.equal('finished');
+            });
         });
     });
 });
