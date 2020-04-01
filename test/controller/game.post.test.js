@@ -6,13 +6,23 @@ const Game = require('../../src/models/game');
 const mongoose = require ('mongoose');
 const chaiSubset = require('chai-subset');
 
-mongoose.connect('mongodb+srv://Solene:ErnAC6bJ95UzC8M4@cluster0-flsqa.mongodb.net/CardsAgainstCoronavirus?retryWrites=true&w=majority',  { useUnifiedTopology: true, useNewUrlParser: true })
-.then(()=>{
-    console.log('Successfully connected to Mongo DB Atlas');
-})
-.catch(error=>{
-    console.log('Error when connecting to MongoDB');
-    console.error(error);
+before(() => {
+    mongoose.connect('mongodb+srv://Solene:ErnAC6bJ95UzC8M4@cluster0-flsqa.mongodb.net/CardsAgainstCoronavirus?retryWrites=true&w=majority',  { useUnifiedTopology: true, useNewUrlParser: true })
+    .then(()=>{
+        console.log('Successfully connected to Mongo DB Atlas');
+    })
+    .catch(error=>{
+        console.log('Error when connecting to MongoDB');
+        console.error(error);
+    });
+});
+
+after(() => {
+    mongoose.disconnect(() => {
+        mongoose.models = {};
+        mongoose.modelSchemas = {};
+        mongoose.connection.close();
+    });
 });
 
 chai.use(chaiHttp);
@@ -90,7 +100,8 @@ describe('POST a game information /game/:id', () => {
             expect(res.body.game.rounds[lastRoundPlayedIndex].playedCards[lastPlayedCardIndex].handCardId).to.equal(newInfo.card);
 
             //check if the card has been removed from the hand
-            expect(res.body.game.players.toString().indexOf(newInfo.card)).to.equal(-1);
+            //expect(res.body.game.players.toString().indexOf(newInfo.card)).to.equal(-1);
+            expect(res.body.game.players.flatMap(player => player.playerCards)).not.to.include(newInfo.card);
         });
 
         it('should not be possible to play a card that is not in your hand', async () => {

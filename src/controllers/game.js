@@ -130,10 +130,7 @@ exports.playACard = (req,res,next) => {
             let newCardPlayed =
                 {
                     playerId: currentPlayer,
-                    votes: [{
-                        emotion: '',
-                        playerId: ''
-                    }],
+                    votes: [],
                     handCardId: playedCard
                 };
 
@@ -245,32 +242,87 @@ exports.voteForACard = (req,res,next) => {
     Game.findOne({_id: req.params.id}).then(
         (game) => {
 
-            //We count how many vote we got
+            //We register the vote for a played card
+            let emotion = req.body.emotion;
+            let cardChoosen = req.params.playedCardId;
+            let currentPlayer = req.body.player;
+
+            //We clone the current game rounds array
+            let newBoard = [... game.rounds];
+            
+            //We prepare the new card that the player decided to play
+            let newVote = {
+                emotion: emotion,
+                playerId: currentPlayer
+            };
+            
+            //Find the round id, you are playing
+            let currentRoundID = game.rounds.filter(round => round.id === req.params.roundId)[0].id;
+            
+            //We loop through the game rounds array and find a round that have the same id as the current round in parameters of the request
+            for(let i = 0; i<newBoard.length; i++){
+                if(newBoard[i].id === currentRoundID){
+
+                    //We add the card in the board in the right round
+                    let setOfCards = newBoard[i].playedCards;
+
+                    //Return an error if the player already voted
+                    if(setOfCards.flatMap(card => card.votes)
+                    .map(vote => vote.playerId).indexOf(currentPlayer) !== -1) {
+                        return res.status(400).json({ error: `The player ${currentPlayer} can\'t play, as he already voted` });
+                    }
+
+                    for(let j = 0; j<setOfCards.length; j++){
+                        if(setOfCards[j].handCardId === cardChoosen){
+                            setOfCards[j].votes.push(newVote);
+                        }
+                    }
+                }
+            }
+            
+            //We have different functionnalities:
+                ///If the vote is not the last vote, push the vote into the object only
+                ///If we have all the votes, the round is marked as finished
+                ///If the number of rounds is not equal to five, then we just reinitialise a new round
+                ///If all five rounds are finished, the game is finished
+
+            //First we count how many vote we got for the last round in the game
             const gamerNumber = game.players.length;
             let voteNumber = 0;
             game.rounds[game.rounds.length-1].playedCards.forEach(card => {
                 voteNumber += card.votes.length;
             });
 
-            //we set the status of the game as finished when the last vote on the last round is done.
-            let allRoundsFinished = true;
-            game.rounds.forEach(round => {
-                return round.roundStatus !== 'finished'? allRoundsFinished = false : null;
-            });
-            
-            //it should have all five rounds finished
-            if(game.rounds.length === 5 && allRoundsFinished && gamerNumber === voteNumber){
-                Game.findOneAndUpdate({_id: gameId},{ status: 'finished' }, {new: true, useFindAndModify: false}).then(
-                    (finishedGame) => {
-                        res.status(200).json({ message: 'Game is finished', finishedGame: finishedGame });
-                    }
-                )
-                .catch(
-                    (err) => {
-                        res.status(400).json({ error: err });
-                    }
-                )
+            //If we have the same amount of vote than the number of players, we set the round to finished
+            if(voteNumber === gamerNumber){
+                //We set the round to finished
+
+                //Check if this is 5 finished rounds -> finished Game
+                //We check here if the five rounds have the status finished
+                let allRoundsFinished = true;
+                game.rounds.forEach(round => {
+                    return round.roundStatus !== 'finished'? allRoundsFinished = false : null;
+                });
+
+                //it should have all five rounds finished
+                //We send back the status game finished
+                if(game.rounds.length === 5 && allRoundsFinished && gamerNumber === voteNumber){
+                    Game.findOneAndUpdate({_id: gameId},{ status: 'finished' }, {new: true, useFindAndModify: false}).then(
+                        (finishedGame) => {
+                            res.status(200).json({ message: 'Game is finished', finishedGame: finishedGame });
+                        }
+                    )
+                    .catch(
+                        (err) => {
+                            res.status(400).json({ error: err });
+                        }
+                    )
+                }
+
+            } else {
+                //return the game object with the new vote
             }
+            
         }
     )
     .catch(

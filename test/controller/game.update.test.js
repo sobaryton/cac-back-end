@@ -6,13 +6,23 @@ const Game = require('../../src/models/game');
 const mongoose = require ('mongoose');
 const chaiSubset = require('chai-subset');
 
-mongoose.connect('mongodb+srv://Solene:ErnAC6bJ95UzC8M4@cluster0-flsqa.mongodb.net/CardsAgainstCoronavirus?retryWrites=true&w=majority',  { useUnifiedTopology: true, useNewUrlParser: true })
-.then(()=>{
-    console.log('Successfully connected to Mongo DB Atlas');
-})
-.catch(error=>{
-    console.log('Error when connecting to MongoDB');
-    console.error(error);
+before(() => {
+    mongoose.connect('mongodb+srv://Solene:ErnAC6bJ95UzC8M4@cluster0-flsqa.mongodb.net/CardsAgainstCoronavirus?retryWrites=true&w=majority',  { useUnifiedTopology: true, useNewUrlParser: true })
+    .then(()=>{
+        console.log('Successfully connected to Mongo DB Atlas');
+    })
+    .catch(error=>{
+        console.log('Error when connecting to MongoDB');
+        console.error(error);
+    });
+});
+
+after(() => {
+    mongoose.disconnect(() => {
+        mongoose.models = {};
+        mongoose.modelSchemas = {};
+        mongoose.connection.close();
+    });
 });
 
 chai.use(chaiHttp);
@@ -119,9 +129,45 @@ describe('UPDATE a game information /game/:id', () => {
     });
     
     describe ('When voting for a card', () => {
-        
+        let startedGame;
         let finishedGame;
         beforeEach( async () => {
+            startedGame = new Game ({
+                status: 'in progress',
+                players: [
+                    { 
+                        pseudo: 'soso',
+                        playerCards:['id2','id3','id4','id5']
+                    },
+                    { 
+                        pseudo: 'nico',
+                        playerCards:['id7','id8','id9','id10']
+                    }
+                ],
+                rounds: [
+                    {
+                        roundStatus: 'finished',
+                        roundCard: {sentence: 'blablabla'},
+                        playedCards: [
+                            {
+                                playerId: 'soso',
+                                votes: [{
+                                    emotion: 'blabla',
+                                    playerId: 'nico'
+                                }],
+                                handCardId: 'id1'
+                            },
+                            {
+                                playerId: 'nico',
+                                votes: [],
+                                handCardId: 'id6'
+                            }
+                        ]
+                    }
+                ]
+            });
+            await startedGame.save(); 
+
             finishedGame = new Game ({
                 status: 'finished',
                 players: [
@@ -264,8 +310,12 @@ describe('UPDATE a game information /game/:id', () => {
         xit('should be possible to vote only for the current round', async () => {
 
         });
-        xit('should be possible to vote only one time', async () => {
-
+        it('should not be possible to vote more than one time in the same round', async () => {
+            const info = { emotion: 'emotion', player:'nico' }
+            const res = await chai.request(app)
+            .put(`/game/${startedGame.id}/round/${startedGame.rounds[0].id}/playedCards/${startedGame.rounds[0].playedCards[1].id}`)
+            .send(info);
+            expect(res.status).to.equal(400);
         });
         xit('should not be possible to vote for ourselves', async () => {
 

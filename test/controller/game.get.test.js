@@ -6,13 +6,23 @@ const Game = require('../../src/models/game');
 const mongoose = require ('mongoose');
 const chaiSubset = require('chai-subset');
 
-mongoose.connect('mongodb+srv://Solene:ErnAC6bJ95UzC8M4@cluster0-flsqa.mongodb.net/CardsAgainstCoronavirus?retryWrites=true&w=majority',  { useUnifiedTopology: true, useNewUrlParser: true })
-.then(()=>{
-    console.log('Successfully connected to Mongo DB Atlas');
-})
-.catch(error=>{
-    console.log('Error when connecting to MongoDB');
-    console.error(error);
+before(() => {
+    mongoose.connect('mongodb+srv://Solene:ErnAC6bJ95UzC8M4@cluster0-flsqa.mongodb.net/CardsAgainstCoronavirus?retryWrites=true&w=majority',  { useUnifiedTopology: true, useNewUrlParser: true })
+    .then(()=>{
+        console.log('Successfully connected to Mongo DB Atlas');
+    })
+    .catch(error=>{
+        console.log('Error when connecting to MongoDB');
+        console.error(error);
+    });
+});
+
+after(() => {
+    mongoose.disconnect(() => {
+        mongoose.models = {};
+        mongoose.modelSchemas = {};
+        mongoose.connection.close();
+    });
 });
 
 chai.use(chaiHttp);
