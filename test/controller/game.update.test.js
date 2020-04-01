@@ -45,11 +45,11 @@ describe('UPDATE a game information /game/:id', () => {
                 players: [
                     { 
                         pseudo: 'soso',
-                        playerCards:['id1','id2','id3','id4','id5']
+                        playerCards:[]
                     },
                     { 
                         pseudo: 'nico',
-                        playerCards:['id6','id7','id8','id9','id10']
+                        playerCards:[]
                     }
                 ]
             });
@@ -60,11 +60,11 @@ describe('UPDATE a game information /game/:id', () => {
                 players: [
                     { 
                         pseudo: 'soso',
-                        playerCards:['id1','id2','id3','id4','id5']
+                        playerCards:[]
                     },
                     { 
                         pseudo: 'nico',
-                        playerCards:['id6','id7','id8','id9','id10']
+                        playerCards:[]
                     }
                 ],
                 rounds: [
@@ -104,8 +104,9 @@ describe('UPDATE a game information /game/:id', () => {
         it('should UPDATE a given game to have the status of in progress', async () => {
             const res = await chai.request(app)
             .put(`/game/${beganGame.id}`);
-            expect(res.body.game.status).to.equal('in progress');
             expect(res.status).to.equal(200);
+            expect(res.body.game.status).to.equal('in progress');
+            
         });
         // xit('should contain the final list of players', async () => {
         //     const res = await chai.request(app)
@@ -116,14 +117,7 @@ describe('UPDATE a game information /game/:id', () => {
         // });
         
     });
-    describe ('When playing a hand card', () => {
-        xit('should remove the card from the hand and put it in the round', async () => {
-
-        });
-        xit('should be only possible to play one of your cards', async () => {
-
-        });
-    });
+    
     describe ('When voting for a card', () => {
         
         let finishedGame;
@@ -258,9 +252,9 @@ describe('UPDATE a game information /game/:id', () => {
         it('should update the status of the game to finished if the last player voted during the last round and should have 5 rounds finished', async () => {
             const res = await chai.request(app)
             .put(`/game/${finishedGame.id}/round/${finishedGame.rounds[4].id}/playedCards/${finishedGame.rounds[4].playedCards[1].id}`);
-            expect(res.body.game.status).to.equal('finished');
-            expect(res.body.game.rounds).to.have.length.lessThan(6);
-            expect(res.body.game.rounds).to.have.length.above(4);
+            expect(res.body.finishedGame.status).to.equal('finished');
+            expect(res.body.finishedGame.rounds).to.have.length.lessThan(6);
+            expect(res.body.finishedGame.rounds).to.have.length.above(4);
             expect(res.status).to.equal(200);
         });
 

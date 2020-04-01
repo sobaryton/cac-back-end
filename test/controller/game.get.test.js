@@ -89,25 +89,25 @@ describe('GET a game information /game/:id', () => {
         it('should contain the requested game id', async () => {
             const res = await chai.request(app)
                 .get(`/game/${game.id}`)
-            expect(res.body._id).to.equal(game.id);
+            expect(res.body.game._id).to.equal(game.id);
         });
         it('should have a status of "waiting"', async () => {
             const res = await chai.request(app)
                 .get(`/game/${game.id}`)
-            expect(res.body.status).to.equal('waiting');
+            expect(res.body.game.status).to.equal('waiting');
         });
         it('should have an empty list of rounds', async () => {
             const res = await chai.request(app)
                 .get(`/game/${game.id}`)
-            expect(res.body.rounds).to.be.an('array');
+            expect(res.body.game.rounds).to.be.an('array');
         });
         it('should return the same party when requested multiple times', async () => {
             const res1 = await chai.request(app)
                 .get(`/game/${game.id}`);
             const res2 = await chai.request(app)
                 .get(`/game/${game.id}`);
-            expect(res1.body._id).to.equal(game.id);
-            expect(res2.body._id).to.equal(game.id);
+            expect(res1.body.game._id).to.equal(game.id);
+            expect(res2.body.game._id).to.equal(game.id);
         });
     });
 
@@ -115,7 +115,7 @@ describe('GET a game information /game/:id', () => {
         xit('should have a list of participants, containing the current user', async () => {
             const res = await chai.request(app)
                 .get(`/game/${startedGame.id}`)
-            expect(res.body.players).to.have.length.above(1);
+            expect(res.body.game.players).to.have.length.above(1);
         });
         xit('if the game already began, or finished, it should not be possible to join', async () => {
             
@@ -125,13 +125,13 @@ describe('GET a game information /game/:id', () => {
     describe('Existing Game structure', () => {
         it('should be an object with the same structure as started game', async () => {
             const res = await chai.request(app)
-                .get(`/game/${startedGame.id}`)
-            expect(res.body).to.containSubset(startedGameSchema);
+                .get(`/game/${startedGame.id}`);
+            expect(res.body.game).to.containSubset(startedGameSchema);
         });
         it('should contain at least two players', async () => {
             const res = await chai.request(app)
-                .get(`/game/${startedGame.id}`)
-            expect(res.body.players).to.have.length.above(1);
+                .get(`/game/${startedGame.id}`);
+            expect(res.body.game.players).to.have.length.above(1);
         });
     });
 
@@ -268,15 +268,15 @@ describe('GET a game information /game/:id', () => {
         it('should have a round card', async () => {
             const res = await chai.request(app)
                 .get(`/game/${startedGame.id}`)
-            expect(res.body.rounds[res.body.rounds.length-1].roundCard.sentence).to.not.equal('');
+            expect(res.body.game.rounds[res.body.game.rounds.length-1].roundCard.sentence).to.not.equal('');
         });
 
         it('should have a list per player of hand cards', async () => {
             const res = await chai.request(app)
             .get(`/game/${startedGame.id}`);
 
-            expect(res.body.players).to.be.an('array');
-            res.body.players.forEach( async player => {
+            expect(res.body.game.players).to.be.an('array');
+            res.body.game.players.forEach( async player => {
                 expect(player.playerCards).to.be.an('array');
                 expect(player.playerCards).to.have.length.above(1);
             });
@@ -288,18 +288,18 @@ describe('GET a game information /game/:id', () => {
             const res = await chai.request(app)
             .get(`/game/${startedGame.id}`);
 
-            expect(res.body.status).to.equal('in progress');
-            expect(res.body.rounds[res.body.rounds.length-1].roundStatus).to.equal('in progress');
-            for(let i = 0; i<res.body.rounds.length-1; i++){
-                expect(res.body.rounds[i].roundStatus).to.equal('finished');
+            expect(res.body.game.status).to.equal('in progress');
+            expect(res.body.game.rounds[res.body.game.rounds.length-1].roundStatus).to.equal('in progress');
+            for(let i = 0; i<res.body.game.rounds.length-1; i++){
+                expect(res.body.game.rounds[i].roundStatus).to.equal('finished');
             }
         });
         it('if the game is finished, all five rounds are finished', async () => {
             const res = await chai.request(app)
             .get(`/game/${finishedGame.id}`);
 
-            expect(res.body.status).to.equal('finished');
-            res.body.rounds.forEach( async round => {
+            expect(res.body.game.status).to.equal('finished');
+            res.body.game.rounds.forEach( async round => {
                 expect(round.roundStatus).to.equal('finished');
             });
         });
