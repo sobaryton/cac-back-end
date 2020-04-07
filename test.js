@@ -11,7 +11,7 @@ mongoose.connect('mongodb+srv://Solene:ErnAC6bJ95UzC8M4@cluster0-flsqa.mongodb.n
 });
 
 const soso ={
-    pseudo:'Soso',
+    userID:'Soso',
     playerCards:[]
 };
 

@@ -8,16 +8,15 @@ exports.getAGame = (req,res,next) => {
         (game) => {
             //Join the game - block if already already begun or finished
             //Add the user that join if status is waiting
-            let user = 'soso';
+            let user = req.session.userID;
 
             let isPlayerInTheGame = false;
             for(let i=0; i<game.players.length; i++){
-                if(game.players[i].pseudo === user){
+                if(game.players[i].userID === user){
                     isPlayerInTheGame = true;
                     break;
                 }
             }
-            console.log('isPlayerInTheGame ',isPlayerInTheGame);
 
             //If player already in the game, return the game
             if (isPlayerInTheGame) {
@@ -26,7 +25,7 @@ exports.getAGame = (req,res,next) => {
             //if the game is in status waiting, add the user to the game
             else if(game.status === 'waiting'){
                 let newPlayer = {
-                    pseudo: user,
+                    userID: user,
                     playerCards:[]
                 }
                 let newPlayers = [...game.players];
@@ -61,7 +60,7 @@ exports.createAGame = (req,res,next) => {
     //add the creator of the game in the game players
     let creator = 'soso';
     newGame.players.push({
-        pseudo: creator,
+        userID: creator,
         playerCards: []
     });
 
@@ -88,7 +87,7 @@ exports.playACard = (req,res,next) => {
             //We will check first if the player is a player of the game
             let isPlayerInTheGame = false;
             for(let i=0; i<game.players.length; i++){
-                if(game.players[i].pseudo === currentPlayer){
+                if(game.players[i].userID === currentPlayer){
                     isPlayerInTheGame = true;
                     break;
                 }
@@ -102,14 +101,14 @@ exports.playACard = (req,res,next) => {
             //Remove the card of the hand of the player
             //this returns a new array without the card played
             let newPlayerHand = game.players
-            .filter(player => player.pseudo === currentPlayer)[0].playerCards
+            .filter(player => player.userID === currentPlayer)[0].playerCards
             .filter(card => card !== playedCard);
 
             //We clone the current array players of the game
             let currentPlayerObj = [... game.players];
-            //We loop through it and find the player with the pseudo that equal the pseudo in the request
+            //We loop through it and find the player with the userID that equal the userID in the request
             for(let i = 0; i<currentPlayerObj.length; i++){
-                if(currentPlayerObj[i].pseudo === currentPlayer){
+                if(currentPlayerObj[i].userID === currentPlayer){
 
                     if(currentPlayerObj[i].playerCards.indexOf(playedCard) === -1){
                         //the card is not in the set of cards of the player, return an error

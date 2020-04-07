@@ -41,11 +41,11 @@ describe('GET a game information /game/:id', () => {
             status: 'in progress',
             players: [
                 { 
-                    pseudo: 'soso',
+                    userID: 'soso',
                     playerCards:['id1','id2','id3','id4','id5']
                 },
                 { 
-                    pseudo: 'nico',
+                    userID: 'nico',
                     playerCards:['id6','id7','id8','id9','id10']
                 }
             ],
@@ -152,11 +152,11 @@ describe('GET a game information /game/:id', () => {
                 status: 'finished',
                 players: [
                     { 
-                        pseudo: 'soso',
+                        userID: 'soso',
                         playerCards:['id1','id2','id3','id4','id5']
                     },
                     { 
-                        pseudo: 'nico',
+                        userID: 'nico',
                         playerCards:['id6','id7','id8','id9','id10']
                     }
                 ],
