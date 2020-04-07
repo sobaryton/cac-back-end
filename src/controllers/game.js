@@ -273,8 +273,13 @@ exports.voteForACard = (req,res,next) => {
                     }
 
                     for(let j = 0; j<setOfCards.length; j++){
-                        if(setOfCards[j].handCardId === cardChoosen){
-                            setOfCards[j].votes.push(newVote);
+                        if(setOfCards[j].id === cardChoosen){
+                            //Return error if the player votes for himself
+                            if(setOfCards[j].playerId === currentPlayer){
+                                return res.status(400).json({ error: `The player ${currentPlayer} can\'t vote for his own card` });
+                            } else {
+                                setOfCards[j].votes.push(newVote);
+                            }
                         }
                     }
                 }
@@ -293,9 +298,14 @@ exports.voteForACard = (req,res,next) => {
                 voteNumber += card.votes.length;
             });
 
-            //If we have the same amount of vote than the number of players, we set the round to finished
+            //If we have the same amount of votes than the number of players, we set the round to finished
             if(voteNumber === gamerNumber){
                 //We set the round to finished
+                for(let i = 0; i<newBoard.length; i++){
+                    if(newBoard[i].id === currentRoundID){
+                        newBoard[i].roundStatus = 'finished';
+                    }
+                }
 
                 //Check if this is 5 finished rounds -> finished Game
                 //We check here if the five rounds have the status finished
@@ -306,7 +316,7 @@ exports.voteForACard = (req,res,next) => {
 
                 //it should have all five rounds finished
                 //We send back the status game finished
-                if(game.rounds.length === 5 && allRoundsFinished && gamerNumber === voteNumber){
+                if(game.rounds.length === 5 && allRoundsFinished){
                     Game.findOneAndUpdate({_id: gameId},{ status: 'finished' }, {new: true, useFindAndModify: false}).then(
                         (finishedGame) => {
                             res.status(200).json({ message: 'Game is finished', finishedGame: finishedGame });
@@ -316,11 +326,58 @@ exports.voteForACard = (req,res,next) => {
                         (err) => {
                             res.status(400).json({ error: err });
                         }
+                    );
+                } else {
+                    //We initialise the next round
+                    chooseRandomRoundCard = (bankCardArray) => {
+                        return bankCardArray[Math.floor(Math.random()*bankCardArray.length)];
+                    }
+                    
+                    //check we did not have it before
+                    //add a round card random
+                    const bankOfRoundCards = RoundCards.RoundCards.cards;
+                    //filter all the cards already chosen in the last rounds
+                    let tabRoundCards = [];
+                    for(let i = 0; i<newBoard.length; i++){
+                        tabRoundCards.push(newBoard[i].roundCard.sentence);
+                    }
+                    
+                    bankOfRoundCards.filter( card => tabRoundCards.indexOf(card) === -1);
+                    let roundCardNew = chooseRandomRoundCard(bankOfRoundCards);
+                    
+                    const newRound = {
+                        roundStatus: 'in progress',
+                        roundCard: { sentence: roundCardNew},
+                        playedCards: []
+                    };
+
+                    newBoard.push(newRound);
+
+                    Game.findOneAndUpdate({_id: gameId},{ rounds: newBoard }, {new: true, useFindAndModify: false}).then(
+                        (game) => {
+                            res.status(200).json({ message: 'The current round is finished - new round created', game: game });
+                        }
                     )
+                    .catch(
+                        (err) => {
+                            res.status(400).json({ error: err });
+                        }
+                    );
                 }
 
             } else {
                 //return the game object with the new vote
+                Game.findOneAndUpdate({_id: gameId},{ rounds: newBoard }, {new: true, useFindAndModify: false}).then(
+                    (game) => {
+                        res.status(200).json({ message: 'Vote in the DB, the round is waiting for other votes to be finished', game: game });
+                    }
+                )
+                .catch(
+                    (err) => {
+                        res.status(400).json({ error: err });
+                    }
+                );
+            
             }
             
         }

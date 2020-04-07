@@ -298,14 +298,20 @@ describe('UPDATE a game information /game/:id', () => {
         it('should update the status of the game to finished if the last player voted during the last round and should have 5 rounds finished', async () => {
             const res = await chai.request(app)
             .put(`/game/${finishedGame.id}/round/${finishedGame.rounds[4].id}/playedCards/${finishedGame.rounds[4].playedCards[1].id}`);
-            expect(res.body.finishedGame.status).to.equal('finished');
-            expect(res.body.finishedGame.rounds).to.have.length.lessThan(6);
-            expect(res.body.finishedGame.rounds).to.have.length.above(4);
+            expect(res.body.game.status).to.equal('finished');
+            expect(res.body.game.rounds).to.have.length.lessThan(6);
+            expect(res.body.game.rounds).to.have.length.above(4);
             expect(res.status).to.equal(200);
         });
 
-        xit('should update the round with the vote', async () => {
-
+        it('should update the round with the vote', async () => {
+            const info = { emotion: 'emotion', player:'soso' }
+            const res = await chai.request(app)
+            .put(`/game/${startedGame.id}/round/${startedGame.rounds[0].id}/playedCards/${startedGame.rounds[0].playedCards[1].id}`)
+            .send(info);
+            const pathToVote = res.body.game.rounds[0].playedCards[1].votes;
+            expect(pathToVote[pathToVote.length-1].emotion).to.equal(info.emotion);
+            expect(pathToVote[pathToVote.length-1].playerId).to.equal(info.player);
         });
         xit('should be possible to vote only for the current round', async () => {
 
@@ -317,12 +323,34 @@ describe('UPDATE a game information /game/:id', () => {
             .send(info);
             expect(res.status).to.equal(400);
         });
-        xit('should not be possible to vote for ourselves', async () => {
-
+        it('should not be possible to vote for ourselves', async () => {
+            const info = { emotion: 'emotion', player:'nico' }
+            const res = await chai.request(app)
+            .put(`/game/${startedGame.id}/round/${startedGame.rounds[0].id}/playedCards/${startedGame.rounds[0].playedCards[1].id}`)
+            .send(info);
+            expect(res.status).to.equal(400);
         });
-        xit('should begin a new round when every player finished to vote', async () => {
-
+        it('should begin a new round when every player finished to vote', async () => {
+            const info = { emotion: 'emotion', player:'soso' }
+            const res = await chai.request(app)
+            .put(`/game/${startedGame.id}/round/${startedGame.rounds[0].id}/playedCards/${startedGame.rounds[0].playedCards[1].id}`)
+            .send(info);
+            const pathToRound = res.body.game.rounds;
+            expect(pathToRound[pathToRound.length-1].roundStatus).to.equal('in progress');
+            expect(pathToRound[pathToRound.length-2].roundStatus).to.equal('finished');
+            expect(pathToRound[pathToRound.length-1].roundCard.sentence).to.have.length.above(0);
         });
-        
+        it('should have a new round card different from the previous ones when a new round is created', async () => {
+            const info = { emotion: 'emotion', player:'soso' }
+            const res = await chai.request(app)
+            .put(`/game/${startedGame.id}/round/${startedGame.rounds[0].id}/playedCards/${startedGame.rounds[0].playedCards[1].id}`)
+            .send(info);
+
+            const pathToRound = res.body.game.rounds;
+            let existingRoundCards = startedGame.rounds.map( round => round.roundCard.sentence );
+            let newRoundCard = pathToRound[pathToRound.length-1].roundCard.sentence;
+
+            expect(existingRoundCards).not.to.include(newRoundCard);
+        });
     });
 });
