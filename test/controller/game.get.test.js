@@ -41,11 +41,11 @@ describe('GET a game information /game/:id', () => {
             status: 'in progress',
             players: [
                 { 
-                    pseudo: 'soso',
+                    userID: 'soso',
                     playerCards:['id1','id2','id3','id4','id5']
                 },
                 { 
-                    pseudo: 'nico',
+                    userID: 'nico',
                     playerCards:['id6','id7','id8','id9','id10']
                 }
             ],
@@ -123,11 +123,18 @@ describe('GET a game information /game/:id', () => {
 
     describe('Join an existing game', () => {
         xit('should have a list of participants, containing the current user', async () => {
+            app.use((req, res, next) => {
+                req.ccccc = {userID: 'soso-user-id-test'} // whatever you want here
+                next()
+            });
             const res = await chai.request(app)
                 .get(`/game/${startedGame.id}`)
-            expect(res.body.game.players).to.have.length.above(1);
+            expect(res.body.game.players).to.include('soso-user-id-test');
         });
         xit('if the game already began, or finished, it should not be possible to join', async () => {
+            
+        });
+        xit('when I go to the site, when the site respond there is a cookie with a user which is in the DB', async () => {
             
         });
     });
@@ -152,11 +159,11 @@ describe('GET a game information /game/:id', () => {
                 status: 'finished',
                 players: [
                     { 
-                        pseudo: 'soso',
+                        userID: 'soso',
                         playerCards:['id1','id2','id3','id4','id5']
                     },
                     { 
-                        pseudo: 'nico',
+                        userID: 'nico',
                         playerCards:['id6','id7','id8','id9','id10']
                     }
                 ],
