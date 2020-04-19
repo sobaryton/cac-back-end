@@ -117,5 +117,7 @@ describe('POST a game information /game/:id', () => {
             .send({card:'id2', player: 'testUser'});
             expect(res.status).to.equal(400);
         });
+
+        xit('is only possible to play one card per round');
     });
 });
