@@ -1,9 +1,7 @@
 module.exports = (req, res, next) => {
-    console.log('req.session.userID ', req.session.userID)
     if(!req.session.userID){
         req.session.userID = 'userID' + makeid(9);
     }
-    console.log('userId',req.session.userID);
     next();
 }
 

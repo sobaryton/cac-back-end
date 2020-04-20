@@ -298,7 +298,7 @@ describe('GET a game information /game/:id', () => {
                 expect(player.playerCards).to.have.length.above(1);
             });
         });
-        xit('should diplay the card of the actual player only', async () => {
+        xit('should display the card of the actual player only', async () => {
 
         });
         it('if the game is in progress, should have only the last round in progress', async () => {
