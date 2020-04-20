@@ -98,6 +98,22 @@ exports.playACard = (req,res,next) => {
                 return res.status(400).json({ error: `The player ${currentPlayer} can\'t play, as he is not in game ${req.params.id}` });
             }
 
+            //Then we check the player did not play on this round before
+            let alreadyPlay = false;
+            let setCard = game.rounds[game.rounds.length-1].playedCards;
+            for(let i=0; i<setCard.length; i++){
+                if(setCard[i].playerId === currentPlayer){
+                    alreadyPlay = true;
+                    break;
+                }
+            }
+
+            if(alreadyPlay){
+                //the player already played a card - we return an error
+                return res.status(400).json({error: `The player ${currentPlayer} can\'t play, as he already played a card before for this round.`})
+            }
+
+
             //Remove the card of the hand of the player
             //this returns a new array without the card played
             let newPlayerHand = game.players

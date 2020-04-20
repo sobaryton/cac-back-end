@@ -30,6 +30,7 @@ chai.use(chaiSubset);
 
 describe('POST a game information /game/:id', () => {  
     let beganGame;
+    let startedGame;
     beforeEach( async () => {
         beganGame = new Game({
             status: 'in progress',
@@ -52,6 +53,39 @@ describe('POST a game information /game/:id', () => {
             ]
         });
         await beganGame.save();
+
+        startedGame = new Game ({
+            status: 'in progress',
+            players: [
+                { 
+                    userID: 'soso',
+                    playerCards:['id2','id3','id4','id5']
+                },
+                { 
+                    userID: 'nico',
+                    playerCards:['id7','id8','id9','id10']
+                }
+            ],
+            rounds: [
+                {
+                    roundStatus: 'in progress',
+                    roundCard: {sentence: 'blablabla'},
+                    playedCards: [
+                        {
+                            playerId: 'soso',
+                            votes: [],
+                            handCardId: 'id1'
+                        },
+                        {
+                            playerId: 'nico',
+                            votes: [],
+                            handCardId: 'id6'
+                        }
+                    ]
+                }
+            ]
+        });
+        await startedGame.save(); 
 
     });
 
@@ -118,6 +152,11 @@ describe('POST a game information /game/:id', () => {
             expect(res.status).to.equal(400);
         });
 
-        xit('is only possible to play one card per round');
+        it('is only possible to play one card per round', async () => {
+            const res = await chai.request(app)
+            .post(`/game/${startedGame.id}/round/${startedGame.rounds[0].id}`)
+            .send({card:'id2', player: 'soso'});
+            expect(res.status).to.equal(400);
+        });
     });
 });
