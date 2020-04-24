@@ -6,6 +6,7 @@ const Game = require('./src/models/game');
 const mongoose = require ('mongoose');
 const userSession = require('./src/middleware/sessions');
 const gameRoutes = require('./src/routes/game');
+const userRoutes = require('./src/routes/user');
 const cors = require('cors');
 
 const app = express();
@@ -34,7 +35,12 @@ app.use(session({
 
 app.use(bodyParser.json());
 
-app.use(cors());
+app.use(cors({
+    credentials: true,
+    origin: (origin, callback) => callback(null, true),
+}));
+
+app.use('/user', userSession, userRoutes);
 
 app.use('/game', userSession, gameRoutes);
 
