@@ -57,8 +57,7 @@ exports.getAGame = (req,res,next) => {
 exports.createAGame = (req,res,next) => {
     let newGame = new Game();
 
-    //add the creator of the game in the game players
-    let creator = 'soso';
+    let creator = req.session.userID;
     newGame.players.push({
         userID: creator,
         playerCards: []
