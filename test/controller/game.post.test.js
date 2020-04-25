@@ -31,7 +31,16 @@ chai.use(chaiSubset);
 describe('POST a game information /game/:id', () => {  
     let beganGame;
     let startedGame;
+    let userId;
+    let agent;
     beforeEach( async () => {
+
+        agent = chai.request.agent(app);
+        const res = await agent
+        .get(`/user`);
+        userId = res.body.userId;
+        console.log(userId);
+
         beganGame = new Game({
             status: 'in progress',
             rounds: [
@@ -43,7 +52,7 @@ describe('POST a game information /game/:id', () => {
             ],
             players: [
                 { 
-                    userID: 'soso',
+                    userID: userId,
                     playerCards:['id1','id2','id3','id4','id5']
                 },
                 { 
@@ -58,7 +67,7 @@ describe('POST a game information /game/:id', () => {
             status: 'in progress',
             players: [
                 { 
-                    userID: 'soso',
+                    userID: userId,
                     playerCards:['id2','id3','id4','id5']
                 },
                 { 
@@ -72,7 +81,7 @@ describe('POST a game information /game/:id', () => {
                     roundCard: {sentence: 'blablabla'},
                     playedCards: [
                         {
-                            playerId: 'soso',
+                            playerId: userId,
                             votes: [],
                             handCardId: 'id1'
                         },
@@ -116,15 +125,15 @@ describe('POST a game information /game/:id', () => {
     });
     describe ('Play a card', () => {
         it('should return successful status 200', async () => {
-            const res = await chai.request(app)
+            const res = await agent
             .post(`/game/${beganGame.id}/round/${beganGame.rounds[0].id}`)
-            .send({card:'id2', player: 'soso'});
+            .send({card:'id2'});
             expect(res.status).to.equal(200);
         });
 
         it('should remove the card from the hand and put it in the round', async () => {
-            const newInfo = {card:'id2', player: 'soso'};
-            const res = await chai.request(app)
+            const newInfo = {card:'id2'};
+            const res = await agent
             .post(`/game/${beganGame.id}/round/${beganGame.rounds[0].id}`)
             .send(newInfo);
 
@@ -139,23 +148,23 @@ describe('POST a game information /game/:id', () => {
         });
 
         it('should not be possible to play a card that is not in your hand', async () => {
-            const res = await chai.request(app)
+            const res = await agent
             .post(`/game/${beganGame.id}/round/${beganGame.rounds[0].id}`)
-            .send({card:'testCard', player: 'soso'});
+            .send({card:'testCard'});
             expect(res.status).to.equal(400);
         });
 
         it('only a player of the game can play a card', async () => {
             const res = await chai.request(app)
             .post(`/game/${beganGame.id}/round/${beganGame.rounds[0].id}`)
-            .send({card:'id2', player: 'testUser'});
+            .send({card:'id2'});
             expect(res.status).to.equal(400);
         });
 
         it('is only possible to play one card per round', async () => {
-            const res = await chai.request(app)
+            const res = await agent
             .post(`/game/${startedGame.id}/round/${startedGame.rounds[0].id}`)
-            .send({card:'id2', player: 'soso'});
+            .send({card:'id2'});
             expect(res.status).to.equal(400);
         });
     });

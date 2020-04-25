@@ -32,7 +32,15 @@ describe('GET a game information /game/:id', () => {
     let game;
     let startedGame;
     let startedGameSchema;
+    let agent;
+    let userId;
     beforeEach(async () => {
+
+        agent = chai.request.agent(app);
+        const res = await agent
+        .get(`/user`);
+        userId = res.body.userId;
+        console.log(userId);
 
         game = new Game();
         await game.save();
@@ -41,7 +49,7 @@ describe('GET a game information /game/:id', () => {
             status: 'in progress',
             players: [
                 { 
-                    userID: 'soso',
+                    userID: userId,
                     playerCards:['id1','id2','id3','id4','id5']
                 },
                 { 
@@ -55,7 +63,7 @@ describe('GET a game information /game/:id', () => {
                     roundCard: {sentence: 'blablabla'},
                     playedCards: [
                         {
-                            playerId: 'playerID',
+                            playerId: userId,
                             votes: [{
                                 emotion: 'blabla',
                                 playerId: 'playerID2'
@@ -66,7 +74,7 @@ describe('GET a game information /game/:id', () => {
                             playerId: 'playerID2',
                             votes: [{
                                 emotion: 'blaa',
-                                playerId: 'playerID'
+                                playerId: userId
                             }],
                             handCardId: 'hand card2'
                         }
@@ -122,14 +130,12 @@ describe('GET a game information /game/:id', () => {
     });
 
     describe('Join an existing game', () => {
-        xit('should have a list of participants, containing the current user', async () => {
-            app.use((req, res, next) => {
-                req.ccccc = {userID: 'soso-user-id-test'} // whatever you want here
-                next()
-            });
-            const res = await chai.request(app)
+
+        it('should have a list of participants, containing the current user', async () => {
+            const res = await agent
                 .get(`/game/${startedGame.id}`)
-            expect(res.body.game.players).to.include('soso-user-id-test');
+            let player = res.body.game.players.filter( p => p.userID === userId )[0].userID;
+            expect(player).to.equal(userId);
         });
         xit('if the game already began, or finished, it should not be possible to join', async () => {
             

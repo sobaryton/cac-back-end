@@ -57,8 +57,7 @@ exports.getAGame = (req,res,next) => {
 exports.createAGame = (req,res,next) => {
     let newGame = new Game();
 
-    //add the creator of the game in the game players
-    let creator = 'soso';
+    let creator = req.session.userID;
     newGame.players.push({
         userID: creator,
         playerCards: []
@@ -82,7 +81,7 @@ exports.playACard = (req,res,next) => {
         (game) => {
 
             let playedCard = req.body.card;
-            let currentPlayer = req.body.player;
+            let currentPlayer = req.session.userID;
 
             //We will check first if the player is a player of the game
             let isPlayerInTheGame = false;
@@ -260,7 +259,7 @@ exports.voteForACard = (req,res,next) => {
             //We register the vote for a played card
             let emotion = req.body.emotion;
             let cardChoosen = req.params.playedCardId;
-            let currentPlayer = req.body.player;
+            let currentPlayer = req.session.userID;
 
             //We clone the current game rounds array
             let newBoard = [... game.rounds];
