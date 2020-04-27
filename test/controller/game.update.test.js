@@ -7,7 +7,7 @@ const mongoose = require ('mongoose');
 const chaiSubset = require('chai-subset');
 
 before(() => {
-    mongoose.connect('mongodb+srv://Solene:ErnAC6bJ95UzC8M4@cluster0-flsqa.mongodb.net/CardsAgainstCoronavirus?retryWrites=true&w=majority',  { useUnifiedTopology: true, useNewUrlParser: true })
+    mongoose.connect(process.env.MONGO_DB_CONNECTION_STRING, { useUnifiedTopology: true, useNewUrlParser: true })
     .then(()=>{
         console.log('Successfully connected to Mongo DB Atlas');
     })
