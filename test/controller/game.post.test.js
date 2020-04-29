@@ -43,6 +43,7 @@ describe('POST a game information /game/:id', () => {
 
         beganGame = new Game({
             status: 'in progress',
+            owner: 'nico',
             rounds: [
                 {
                     roundStatus: 'in progress',
@@ -65,6 +66,7 @@ describe('POST a game information /game/:id', () => {
 
         startedGame = new Game ({
             status: 'in progress',
+            owner: 'nico',
             players: [
                 { 
                     userID: userId,
@@ -121,6 +123,19 @@ describe('POST a game information /game/:id', () => {
             const res2 = await chai.request(app)
             .post('/game');
             expect(res1.body.game._id).not.equal(res2.body.game._id);
+        });
+        it('should create a player with our userId and the owner property to true', async () => {
+            const res = await agent
+            .post('/game');
+            let player = res.body.game.players.filter( p => p.userID === userId )[0];
+            expect(player.userID).to.equal(userId);
+            expect(res.body.game.owner).to.equal(userId);
+        });
+        it('should have no hand card for the creator of the game, as it will be generated when pressing start', async () => {
+            const res = await agent 
+            .post('/game');
+            let cardsNb = res.body.game.players[0].playerCards.length;
+            expect(cardsNb).to.equal(0);
         });
     });
     describe ('Play a card', () => {
