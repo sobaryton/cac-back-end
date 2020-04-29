@@ -29,32 +29,55 @@ chai.use(chaiHttp);
 chai.use(chaiSubset);
 
 describe('UPDATE a game information /game/:id', () => { 
+    let userId;
+    let agent;
+    beforeEach( async () => {
+        agent = chai.request.agent(app);
+        const res = await agent
+        .get(`/user`);
+        userId = res.body.userId;
+        console.log(userId);
+    })
+
     describe ('Begin a game', () => {
         let game;
         let beganGame;
+        let beforeStartGame;
         beforeEach( async () => {
 
-            game = new Game();
+            game = new Game({
+                owner: userId
+            });
             await game.save();
 
-            beganGame = new Game({
-                status: 'in progress',
+            beforeStartGame = new Game({
+                status: 'waiting',
+                owner: 'soso',
                 rounds: [
-                    {
-                        roundStatus: 'in progress',
-                        roundCard: {sentence: 'round card 1'},
-                        playedCards: []
-                    }
                 ],
                 players: [
                     { 
                         userID: 'soso',
-                        owner: true,
                         playerCards:[]
                     },
                     { 
                         userID: 'nico',
-                        owner: false,
+                        playerCards:[]
+                    }
+                ]
+            });
+            await beforeStartGame.save();
+
+            beganGame = new Game({
+                status: 'waiting',
+                owner: userId,
+                players: [
+                    { 
+                        userID: userId,
+                        playerCards:[]
+                    },
+                    { 
+                        userID: 'nico',
                         playerCards:[]
                     }
                 ]
@@ -63,16 +86,15 @@ describe('UPDATE a game information /game/:id', () => {
 
             startedGameSchema = {
                 status: 'in progress',
+                owner: userId,
                 players: [
                     { 
-                        userID: 'soso',
-                        owner: true,
-                        playerCards:[]
+                        userID: userId,
+                        playerCards:['id2','id3','id4','id5']
                     },
                     { 
                         userID: 'nico',
-                        owner: false,
-                        playerCards:[]
+                        playerCards:['id7','id8','id9','id10']
                     }
                 ],
                 rounds: [
@@ -81,20 +103,20 @@ describe('UPDATE a game information /game/:id', () => {
                         roundCard: {sentence: 'blablabla'},
                         playedCards: [
                             {
-                                playerId: 'playerID',
+                                playerId: 'nico',
                                 votes: [{
-                                    emotion: 'blabla',
-                                    playerId: 'playerID2'
+                                    emotion: 'funny',
+                                    playerId: userId
                                 }],
-                                handCardId: 'hand card1'
+                                handCardId: 'id6'
                             },
                             {
-                                playerId: 'playerID2',
+                                playerId: userId,
                                 votes: [{
-                                    emotion: 'blaa',
-                                    playerId: 'playerID'
+                                    emotion: 'cute',
+                                    playerId: 'nico'
                                 }],
-                                handCardId: 'hand card2'
+                                handCardId: 'id1'
                             }
                         ]
                     },
@@ -110,25 +132,31 @@ describe('UPDATE a game information /game/:id', () => {
         });
 
         it('should UPDATE a given game to have the status of in progress', async () => {
-            const res = await chai.request(app)
+            const res = await agent
             .put(`/game/${beganGame.id}`);
             expect(res.status).to.equal(200);
             expect(res.body.game.status).to.equal('in progress');
             
         });
-        // xit('should contain the final list of players', async () => {
-        //     const res = await chai.request(app)
+        it('should contain the final list of players with 5 hand cards each', async () => {
+            const res = await agent
+            .put(`/game/${beganGame.id}`);
+            let players = res.body.game.players;
+            players.forEach( p => {
+                let cardsNb = p.playerCards.length;
+                expect(cardsNb).to.equal(5);
+            });
             
-        // });
-        // xit('should contain the first round info', async () => {
-
-        // });
+        });
+        it('should not be possible for a player who is not the owner to start the game', async () => {
+            const res = await agent
+            .put(`/game/${beforeStartGame.id}`);
+            expect(res.status).to.equal(400);
+        });
         
     });
     
     describe ('When voting for a card', () => {
-        let userId;
-        let agent;
         let startedGame;
         let finishedGame;
         let startedGameNewRound;
@@ -136,23 +164,16 @@ describe('UPDATE a game information /game/:id', () => {
 
         beforeEach( async () => {
 
-            agent = chai.request.agent(app);
-            const res = await agent
-            .get(`/user`);
-            userId = res.body.userId;
-            console.log(userId);
-
             startedGame = new Game ({
                 status: 'in progress',
+                owner: userId,
                 players: [
                     { 
                         userID: userId,
-                        owner: true,
                         playerCards:['id2','id3','id4','id5']
                     },
                     { 
                         userID: 'nico',
-                        owner: false,
                         playerCards:['id7','id8','id9','id10']
                     }
                 ],
@@ -204,15 +225,14 @@ describe('UPDATE a game information /game/:id', () => {
 
             startedGameNewRound = new Game ({
                 status: 'in progress',
+                owner: userId,
                 players: [
                     { 
                         userID: userId,
-                        owner: true,
                         playerCards:['id2','id3','id4','id5']
                     },
                     { 
                         userID: 'nico',
-                        owner: false,
                         playerCards:['id7','id8','id9','id10']
                     }
                 ],
@@ -242,15 +262,14 @@ describe('UPDATE a game information /game/:id', () => {
 
             gameLastVote = new Game ({
                 status: 'in progress',
+                owner: userId,
                 players: [
                     { 
                         userID: userId,
-                        owner: true,
                         playerCards:['id2','id3','id4','id5']
                     },
                     { 
                         userID: 'nico',
-                        owner: false,
                         playerCards:['id7','id8','id9','id10']
                     }
                 ],
@@ -280,15 +299,14 @@ describe('UPDATE a game information /game/:id', () => {
 
             finishedGame = new Game ({
                 status: 'finished',
+                owner: userId,
                 players: [
                     { 
                         userID: userId,
-                        owner: true,
                         playerCards:['id1','id2','id3','id4','id5']
                     },
                     { 
                         userID: 'nico',
-                        owner: false,
                         playerCards:['id6','id7','id8','id9','id10']
                     }
                 ],

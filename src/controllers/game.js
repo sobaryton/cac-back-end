@@ -26,7 +26,6 @@ exports.getAGame = (req,res,next) => {
             else if(game.status === 'waiting'){
                 let newPlayer = {
                     userID: user,
-                    owner: false,
                     playerCards:[]
                 }
                 let newPlayers = [...game.players];
@@ -61,9 +60,9 @@ exports.createAGame = (req,res,next) => {
     let creator = req.session.userID;
     newGame.players.push({
         userID: creator,
-        owner: true,
         playerCards: []
     });
+    newGame.owner = creator;
 
     newGame.save().then(
         (game) => {
@@ -200,45 +199,50 @@ exports.startAGame = (req,res,next) => {
     Game.findOne({_id: req.params.id}).then(
         (game) => {
             if(game.players.length < 2){
-                res.status(400).json({ error: 'Need at least two players to play a game' });
-            } else {
-                //add a new round
-                //change the round to in progress
-                //add a round card random
-                let bankOfRoundCards = RoundCards.RoundCards.cards;
-                let roundCardNew = bankOfRoundCards[Math.floor(Math.random()*bankOfRoundCards.length)];
-                let newRound = {
-                    roundStatus: 'in progress',
-                    roundCard: { sentence: roundCardNew},
-                    playedCards: []
-                }
-
-                //add the cards randomly to the players
-                let numberCardTotal = (game.players.length)*5;
-                let handCardsNew = [...HandCards.HandCards.cards];
-                handCardsNew =  shuffle(handCardsNew);
-                let newPlayers = [...game.players];
-                let n = 0;
-
-                for(let i=0; i<numberCardTotal; i++){
-                    if(newPlayers[n].playerCards.length === 5){
-                        n++;
-                    } else {
-                        newPlayers[n].playerCards.push(handCardsNew[i]);
-                    }
-                }
-                
-                Game.findOneAndUpdate({_id: req.params.id}, { status: 'in progress', players: newPlayers, $push: {rounds: newRound} }, {new: true, useFindAndModify: false}).then(
-                    (game) => {
-                        res.status(200).json({ message: 'New game began', game });
-                    }
-                )
-                .catch(
-                    (err) => {
-                        res.status(400).json({ error: err });
-                    }
-                )
+                return res.status(400).json({ error: 'Need at least two players to play a game' });
+            } 
+            let playerPressingStart = req.session.userID;
+            if (playerPressingStart !== game.owner) {
+                return res.status(400).json({ error: `The player who has to start the game should be the owner of the game: ${game.owner} `});
             }
+            
+            //add a new round
+            //change the round to in progress
+            //add a round card random
+            let bankOfRoundCards = RoundCards.RoundCards.cards;
+            let roundCardNew = bankOfRoundCards[Math.floor(Math.random()*bankOfRoundCards.length)];
+            let newRound = {
+                roundStatus: 'in progress',
+                roundCard: { sentence: roundCardNew},
+                playedCards: []
+            }
+
+            //add the cards randomly to the players
+            let numberCardTotal = (game.players.length)*5;
+            let handCardsNew = [...HandCards.HandCards.cards];
+            handCardsNew =  shuffle(handCardsNew);
+            let newPlayers = [...game.players];
+            let n = 0;
+
+            for(let i=0; i<=numberCardTotal; i++){
+                if(newPlayers[n].playerCards.length === 5){
+                    n++;
+                } else {
+                    newPlayers[n].playerCards.push(handCardsNew[i]);
+                }
+            }
+            
+            Game.findOneAndUpdate({_id: req.params.id}, { status: 'in progress', players: newPlayers, $push: {rounds: newRound} }, {new: true, useFindAndModify: false}).then(
+                (game) => {
+                    res.status(200).json({ message: 'New game began', game });
+                }
+            )
+            .catch(
+                (err) => {
+                    res.status(400).json({ error: err });
+                }
+            )
+            
         }        
     )
     .catch(

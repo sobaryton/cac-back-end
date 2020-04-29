@@ -4,6 +4,7 @@ const PlayerSchema = require('./players');
 
 const gameSchema = mongoose.Schema({
     status: {type:String, required: true, default: 'waiting'},
+    owner: {type:String, required:true},
     players: {type:[PlayerSchema], required: true},
     rounds: {type:[RoundSchema], required: true}
 });

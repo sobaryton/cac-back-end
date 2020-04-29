@@ -43,6 +43,7 @@ describe('POST a game information /game/:id', () => {
 
         beganGame = new Game({
             status: 'in progress',
+            owner: 'nico',
             rounds: [
                 {
                     roundStatus: 'in progress',
@@ -53,12 +54,10 @@ describe('POST a game information /game/:id', () => {
             players: [
                 { 
                     userID: userId,
-                    owner: true,
                     playerCards:['id1','id2','id3','id4','id5']
                 },
                 { 
                     userID: 'nico',
-                    owner: false,
                     playerCards:['id6','id7','id8','id9','id10']
                 }
             ]
@@ -67,15 +66,14 @@ describe('POST a game information /game/:id', () => {
 
         startedGame = new Game ({
             status: 'in progress',
+            owner: 'nico',
             players: [
                 { 
                     userID: userId,
-                    owner: true,
                     playerCards:['id2','id3','id4','id5']
                 },
                 { 
                     userID: 'nico',
-                    owner: false,
                     playerCards:['id7','id8','id9','id10']
                 }
             ],
@@ -131,8 +129,14 @@ describe('POST a game information /game/:id', () => {
             .post('/game');
             let player = res.body.game.players.filter( p => p.userID === userId )[0];
             expect(player.userID).to.equal(userId);
-            expect(player.owner).to.be.true;
-        })
+            expect(res.body.game.owner).to.equal(userId);
+        });
+        it('should have no hand card for the creator of the game, as it will be generated when pressing start', async () => {
+            const res = await agent 
+            .post('/game');
+            let cardsNb = res.body.game.players[0].playerCards.length;
+            expect(cardsNb).to.equal(0);
+        });
     });
     describe ('Play a card', () => {
         it('should return successful status 200', async () => {
