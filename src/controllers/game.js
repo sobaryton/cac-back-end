@@ -300,7 +300,6 @@ exports.voteForACard = (req,res,next) => {
                     }
 
                     for(let j = 0; j<setOfCards.length; j++){
-                        if(setOfCards[j].handCardId)
                         if(setOfCards[j].id === cardChoosen){
                             //Return error if the player votes for himself
                             if(setOfCards[j].playerId === currentPlayer){
