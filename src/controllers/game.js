@@ -260,9 +260,15 @@ exports.voteForACard = (req,res,next) => {
             let emotion = req.body.emotion;
             let cardChoosen = req.params.playedCardId;
             let currentPlayer = req.session.userID;
+            let validateEmotions = ['scary', 'funny', 'disgusting', 'nsfw', 'cute'];
 
             //We clone the current game rounds array
             let newBoard = [... game.rounds];
+
+            //We check the emotion returned and validate it or return an error
+            if(validateEmotions.indexOf(emotion) === -1) {
+                return res.status(400).json({error: `The emotion "${emotion}" is not valide. Please use one of these validated emotions: 'scary', 'funny', 'disgusting', 'nsfw', 'cute'.`});
+            }
             
             //We prepare the new card that the player decided to play
             let newVote = {
@@ -279,6 +285,7 @@ exports.voteForACard = (req,res,next) => {
 
                     //We add the card in the board in the right round
                     let setOfCards = newBoard[i].playedCards;
+                    let voted = false;
 
                     //Return an error if the player already voted
                     if(setOfCards.flatMap(card => card.votes)
@@ -287,14 +294,20 @@ exports.voteForACard = (req,res,next) => {
                     }
 
                     for(let j = 0; j<setOfCards.length; j++){
+                        if(setOfCards[j].handCardId)
                         if(setOfCards[j].id === cardChoosen){
                             //Return error if the player votes for himself
                             if(setOfCards[j].playerId === currentPlayer){
                                 return res.status(400).json({ error: `The player ${currentPlayer} can\'t vote for his own card` });
                             } else {
                                 setOfCards[j].votes.push(newVote);
+                                voted = true;
                             }
                         }
+                    }
+                    if(!voted){
+                        // couldnt find the card, so the card is not existing, we return an error
+                        return res.status(400).json({ error: `The card "${cardChoosen}" doesn\'t exist in the player hand` });
                     }
                 }
             }
@@ -333,7 +346,7 @@ exports.voteForACard = (req,res,next) => {
                 if(game.rounds.length === 5 && allRoundsFinished){
                     Game.findOneAndUpdate({_id: gameId},{ status: 'finished' }, {new: true, useFindAndModify: false}).then(
                         (finishedGame) => {
-                            res.status(200).json({ message: 'Game is finished', finishedGame: finishedGame });
+                            res.status(200).json({ message: 'Game is finished', game: finishedGame });
                         }
                     )
                     .catch(
