@@ -53,11 +53,23 @@ let roundCards = {
         'To help other in needs, I __'  ,
         'My day is wasted because my partner __',
         'I miss to buy __',
+        'To us give hope, my boss should __',
+        'To us give hope, the governement should __',
+        'To us give hope, scientifics should __',
+        'To us give hope, your mom should __',
+        'I miss to __',
+        'I will give all my money to __',
+        'My boss deeply wants to __ with me after quarantine',
+        'My colleagues really want to __ with me after quarantine',
+        'My colleagues really want to __ after quarantine',
+        'My mom deeply wants to __ with me after quarantine',
         'It it your birthday? I will offer you __',
         'Do you have COVID19? I can __ to help you.',
         'I can __ to help you as you have CoronaVirus.',
         'I can\'t __ because you are sick.',
-        'You __ too much and now we have to go to the urgencies!'      
+        'You __ too much and now we have to go to the urgencies!',
+        'I __, to remember good times.',
+        'I __, to remember better times.'      
     ]
 };
 
