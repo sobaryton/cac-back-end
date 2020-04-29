@@ -26,6 +26,7 @@ exports.getAGame = (req,res,next) => {
             else if(game.status === 'waiting'){
                 let newPlayer = {
                     userID: user,
+                    owner: false,
                     playerCards:[]
                 }
                 let newPlayers = [...game.players];
@@ -60,6 +61,7 @@ exports.createAGame = (req,res,next) => {
     let creator = req.session.userID;
     newGame.players.push({
         userID: creator,
+        owner: true,
         playerCards: []
     });
 

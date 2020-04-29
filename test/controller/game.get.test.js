@@ -34,6 +34,7 @@ describe('GET a game information /game/:id', () => {
     let startedGameSchema;
     let agent;
     let userId;
+    let waitingGameStart;
     beforeEach(async () => {
 
         agent = chai.request.agent(app);
@@ -45,15 +46,29 @@ describe('GET a game information /game/:id', () => {
         game = new Game();
         await game.save();
 
+        waitingGameStart = new Game({
+            status: 'waiting',
+            players: [
+                { 
+                    userID: 'nico',
+                    owner: true,
+                    playerCards:['id6','id7','id8','id9','id10']
+                }
+            ]
+        });
+        await waitingGameStart.save();
+
         startedGameSchema = {
             status: 'in progress',
             players: [
                 { 
                     userID: userId,
+                    owner: true,
                     playerCards:['id1','id2','id3','id4','id5']
                 },
                 { 
                     userID: 'nico',
+                    owner: false,
                     playerCards:['id6','id7','id8','id9','id10']
                 }
             ],
@@ -133,9 +148,18 @@ describe('GET a game information /game/:id', () => {
 
         it('should have a list of participants, containing the current user', async () => {
             const res = await agent
-                .get(`/game/${startedGame.id}`)
-            let player = res.body.game.players.filter( p => p.userID === userId )[0].userID;
-            expect(player).to.equal(userId);
+                .get(`/game/${game.id}`)
+            let player = res.body.game.players.filter( p => p.userID === userId )[0];
+            expect(player.userID).to.equal(userId);
+        });
+        it('should add the new player in the game with a owner property set to false', async () => {
+            console.log(waitingGameStart.players)
+            const res = await agent
+                .get(`/game/${waitingGameStart.id}`)
+            
+            let player = res.body.game.players.filter( p => p.userID === userId )[0];
+            expect(player.userID).to.equal(userId);
+            expect(player.owner).to.be.false;
         });
         xit('if the game already began, or finished, it should not be possible to join', async () => {
             
@@ -166,10 +190,12 @@ describe('GET a game information /game/:id', () => {
                 players: [
                     { 
                         userID: 'soso',
+                        owner: true,
                         playerCards:['id1','id2','id3','id4','id5']
                     },
                     { 
                         userID: 'nico',
+                        owner: false,
                         playerCards:['id6','id7','id8','id9','id10']
                     }
                 ],

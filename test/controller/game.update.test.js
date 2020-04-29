@@ -49,10 +49,12 @@ describe('UPDATE a game information /game/:id', () => {
                 players: [
                     { 
                         userID: 'soso',
+                        owner: true,
                         playerCards:[]
                     },
                     { 
                         userID: 'nico',
+                        owner: false,
                         playerCards:[]
                     }
                 ]
@@ -64,10 +66,12 @@ describe('UPDATE a game information /game/:id', () => {
                 players: [
                     { 
                         userID: 'soso',
+                        owner: true,
                         playerCards:[]
                     },
                     { 
                         userID: 'nico',
+                        owner: false,
                         playerCards:[]
                     }
                 ],
@@ -143,10 +147,12 @@ describe('UPDATE a game information /game/:id', () => {
                 players: [
                     { 
                         userID: userId,
+                        owner: true,
                         playerCards:['id2','id3','id4','id5']
                     },
                     { 
                         userID: 'nico',
+                        owner: false,
                         playerCards:['id7','id8','id9','id10']
                     }
                 ],
@@ -201,10 +207,12 @@ describe('UPDATE a game information /game/:id', () => {
                 players: [
                     { 
                         userID: userId,
+                        owner: true,
                         playerCards:['id2','id3','id4','id5']
                     },
                     { 
                         userID: 'nico',
+                        owner: false,
                         playerCards:['id7','id8','id9','id10']
                     }
                 ],
@@ -237,10 +245,12 @@ describe('UPDATE a game information /game/:id', () => {
                 players: [
                     { 
                         userID: userId,
+                        owner: true,
                         playerCards:['id2','id3','id4','id5']
                     },
                     { 
                         userID: 'nico',
+                        owner: false,
                         playerCards:['id7','id8','id9','id10']
                     }
                 ],
@@ -273,10 +283,12 @@ describe('UPDATE a game information /game/:id', () => {
                 players: [
                     { 
                         userID: userId,
+                        owner: true,
                         playerCards:['id1','id2','id3','id4','id5']
                     },
                     { 
                         userID: 'nico',
+                        owner: false,
                         playerCards:['id6','id7','id8','id9','id10']
                     }
                 ],

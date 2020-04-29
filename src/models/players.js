@@ -3,5 +3,6 @@ const HandCardSchema = require('./handCard');
 
 module.exports =  playersSchema = mongoose.Schema({
     userID:{type:String, required: true},
+    owner: {type: Boolean, required: true},
     playerCards:{type: [String], required: true}
 });

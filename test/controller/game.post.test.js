@@ -53,10 +53,12 @@ describe('POST a game information /game/:id', () => {
             players: [
                 { 
                     userID: userId,
+                    owner: true,
                     playerCards:['id1','id2','id3','id4','id5']
                 },
                 { 
                     userID: 'nico',
+                    owner: false,
                     playerCards:['id6','id7','id8','id9','id10']
                 }
             ]
@@ -68,10 +70,12 @@ describe('POST a game information /game/:id', () => {
             players: [
                 { 
                     userID: userId,
+                    owner: true,
                     playerCards:['id2','id3','id4','id5']
                 },
                 { 
                     userID: 'nico',
+                    owner: false,
                     playerCards:['id7','id8','id9','id10']
                 }
             ],
@@ -122,6 +126,13 @@ describe('POST a game information /game/:id', () => {
             .post('/game');
             expect(res1.body.game._id).not.equal(res2.body.game._id);
         });
+        it('should create a player with our userId and the owner property to true', async () => {
+            const res = await agent
+            .post('/game');
+            let player = res.body.game.players.filter( p => p.userID === userId )[0];
+            expect(player.userID).to.equal(userId);
+            expect(player.owner).to.be.true;
+        })
     });
     describe ('Play a card', () => {
         it('should return successful status 200', async () => {
