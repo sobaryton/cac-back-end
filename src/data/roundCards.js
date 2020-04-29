@@ -51,7 +51,13 @@ let roundCards = {
         'I give my __ to the charities to help others in needs.',
         'Without any doubt, I give my __ to the charities.',
         'To help other in needs, I __'  ,
-        'My day is wasted because my partner __'      
+        'My day is wasted because my partner __',
+        'I miss to buy __',
+        'It it your birthday? I will offer you __',
+        'Do you have COVID19? I can __ to help you.',
+        'I can __ to help you as you have CoronaVirus.',
+        'I can\'t __ because you are sick.',
+        'You __ too much and now we have to go to the urgencies!'      
     ]
 };
 
