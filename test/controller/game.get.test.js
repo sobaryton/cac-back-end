@@ -33,6 +33,7 @@ describe('GET a game information /game/:id', () => {
     let startedGame;
     let startedGameSchema;
     let agent;
+    let pseudo;
     let userId;
     let waitingGameStart;
     beforeEach(async () => {
@@ -41,7 +42,8 @@ describe('GET a game information /game/:id', () => {
         const res = await agent
         .get(`/user`);
         userId = res.body.userId;
-        console.log(userId);
+        pseudo = res.body.pseudo;
+        console.log(userId,' ',pseudo);
 
         game = new Game({
             owner: userId
@@ -54,6 +56,7 @@ describe('GET a game information /game/:id', () => {
             players: [
                 { 
                     userID: 'nico',
+                    pseudo: 'niKKo',
                     playerCards:['id6','id7','id8','id9','id10']
                 }
             ]
@@ -66,10 +69,12 @@ describe('GET a game information /game/:id', () => {
             players: [
                 { 
                     userID: userId,
+                    pseudo: pseudo,
                     playerCards:['id1','id2','id3','id4','id5']
                 },
                 { 
                     userID: 'nico',
+                    pseudo: 'niKKo',
                     playerCards:['id6','id7','id8','id9','id10']
                 }
             ],
@@ -159,6 +164,7 @@ describe('GET a game information /game/:id', () => {
             
             let player = res.body.game.players.filter( p => p.userID === userId )[0];
             expect(player.userID).to.equal(userId);
+            expect(player.pseudo).to.equal(pseudo);
         });
         xit('if the game already began, or finished, it should not be possible to join', async () => {
             
@@ -190,10 +196,12 @@ describe('GET a game information /game/:id', () => {
                 players: [
                     { 
                         userID: 'soso',
+                        pseudo: 'sosoo',
                         playerCards:['id1','id2','id3','id4','id5']
                     },
                     { 
                         userID: 'nico',
+                        pseudo: 'niKKo',
                         playerCards:['id6','id7','id8','id9','id10']
                     }
                 ],

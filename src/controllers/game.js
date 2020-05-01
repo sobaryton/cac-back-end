@@ -9,6 +9,7 @@ exports.getAGame = (req,res,next) => {
             //Join the game - block if already already begun or finished
             //Add the user that join if status is waiting
             let user = req.session.userID;
+            let pseudoPlayer = req.session.pseudo;
 
             let isPlayerInTheGame = false;
             for(let i=0; i<game.players.length; i++){
@@ -26,6 +27,7 @@ exports.getAGame = (req,res,next) => {
             else if(game.status === 'waiting'){
                 let newPlayer = {
                     userID: user,
+                    pseudo: pseudoPlayer,
                     playerCards:[]
                 }
                 let newPlayers = [...game.players];
@@ -58,8 +60,10 @@ exports.createAGame = (req,res,next) => {
     let newGame = new Game();
 
     let creator = req.session.userID;
+    let pseudoPlayer = req.session.pseudo;
     newGame.players.push({
         userID: creator,
+        pseudo: pseudoPlayer,
         playerCards: []
     });
     newGame.owner = creator;

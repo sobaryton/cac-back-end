@@ -32,6 +32,7 @@ describe('POST a game information /game/:id', () => {
     let beganGame;
     let startedGame;
     let userId;
+    let pseudo;
     let agent;
     beforeEach( async () => {
 
@@ -39,7 +40,8 @@ describe('POST a game information /game/:id', () => {
         const res = await agent
         .get(`/user`);
         userId = res.body.userId;
-        console.log(userId);
+        pseudo = res.body.pseudo;
+        console.log(userId, ' ', pseudo);
 
         beganGame = new Game({
             status: 'in progress',
@@ -54,10 +56,12 @@ describe('POST a game information /game/:id', () => {
             players: [
                 { 
                     userID: userId,
+                    pseudo: pseudo,
                     playerCards:['id1','id2','id3','id4','id5']
                 },
                 { 
                     userID: 'nico',
+                    pseudo: 'niKKo',
                     playerCards:['id6','id7','id8','id9','id10']
                 }
             ]
@@ -70,10 +74,12 @@ describe('POST a game information /game/:id', () => {
             players: [
                 { 
                     userID: userId,
+                    pseudo: pseudo,
                     playerCards:['id2','id3','id4','id5']
                 },
                 { 
                     userID: 'nico',
+                    pseudo: 'niKKo',
                     playerCards:['id7','id8','id9','id10']
                 }
             ],
@@ -124,11 +130,12 @@ describe('POST a game information /game/:id', () => {
             .post('/game');
             expect(res1.body.game._id).not.equal(res2.body.game._id);
         });
-        it('should create a player with our userId and the owner property to true', async () => {
+        it('should create a player with our userId and pseudo and the game should have an owner', async () => {
             const res = await agent
             .post('/game');
             let player = res.body.game.players.filter( p => p.userID === userId )[0];
             expect(player.userID).to.equal(userId);
+            expect(player.pseudo).to.equal(pseudo);
             expect(res.body.game.owner).to.equal(userId);
         });
         it('should have no hand card for the creator of the game, as it will be generated when pressing start', async () => {

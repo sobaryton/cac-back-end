@@ -30,13 +30,15 @@ chai.use(chaiSubset);
 
 describe('UPDATE a game information /game/:id', () => { 
     let userId;
+    let pseudo;
     let agent;
     beforeEach( async () => {
         agent = chai.request.agent(app);
         const res = await agent
         .get(`/user`);
         userId = res.body.userId;
-        console.log(userId);
+        pseudo = res.body.pseudo;
+        console.log(userId, ' ', pseudo);
     })
 
     describe ('Begin a game', () => {
@@ -58,10 +60,12 @@ describe('UPDATE a game information /game/:id', () => {
                 players: [
                     { 
                         userID: 'soso',
+                        pseudo: 'soso',
                         playerCards:[]
                     },
                     { 
                         userID: 'nico',
+                        pseudo: 'nico',
                         playerCards:[]
                     }
                 ]
@@ -74,10 +78,12 @@ describe('UPDATE a game information /game/:id', () => {
                 players: [
                     { 
                         userID: userId,
+                        pseudo: pseudo,
                         playerCards:[]
                     },
                     { 
                         userID: 'nico',
+                        pseudo: 'niccco',
                         playerCards:[]
                     }
                 ]
@@ -90,10 +96,12 @@ describe('UPDATE a game information /game/:id', () => {
                 players: [
                     { 
                         userID: userId,
+                        pseudo: pseudo,
                         playerCards:['id2','id3','id4','id5']
                     },
                     { 
                         userID: 'nico',
+                        pseudo: 'nico',
                         playerCards:['id7','id8','id9','id10']
                     }
                 ],
@@ -170,10 +178,12 @@ describe('UPDATE a game information /game/:id', () => {
                 players: [
                     { 
                         userID: userId,
+                        pseudo: pseudo,
                         playerCards:['id2','id3','id4','id5']
                     },
                     { 
                         userID: 'nico',
+                        pseudo: 'nikkko',
                         playerCards:['id7','id8','id9','id10']
                     }
                 ],
@@ -229,10 +239,12 @@ describe('UPDATE a game information /game/:id', () => {
                 players: [
                     { 
                         userID: userId,
+                        pseudo: pseudo,
                         playerCards:['id2','id3','id4','id5']
                     },
                     { 
                         userID: 'nico',
+                        pseudo: 'ojononn',
                         playerCards:['id7','id8','id9','id10']
                     }
                 ],
@@ -266,10 +278,12 @@ describe('UPDATE a game information /game/:id', () => {
                 players: [
                     { 
                         userID: userId,
+                        pseudo: pseudo,
                         playerCards:['id2','id3','id4','id5']
                     },
                     { 
                         userID: 'nico',
+                        pseudo: 'niccocoo',
                         playerCards:['id7','id8','id9','id10']
                     }
                 ],
@@ -303,10 +317,12 @@ describe('UPDATE a game information /game/:id', () => {
                 players: [
                     { 
                         userID: userId,
+                        pseudo: pseudo,
                         playerCards:['id1','id2','id3','id4','id5']
                     },
                     { 
                         userID: 'nico',
+                        pseudo: 'nicooo',
                         playerCards:['id6','id7','id8','id9','id10']
                     }
                 ],
@@ -428,6 +444,7 @@ describe('UPDATE a game information /game/:id', () => {
             .put(`/game/${finishedGame.id}/round/${finishedGame.rounds[4].id}/playedCards/${finishedGame.rounds[4].playedCards[1].id}`)
             .send(info);
             expect(res.body.game.status).to.equal('finished');
+            expect(res.body.game.rounds[res.body.game.rounds.length -1].roundStatus).to.equal('finished');
             expect(res.body.game.rounds).to.have.length.lessThan(6);
             expect(res.body.game.rounds).to.have.length.above(4);
             expect(res.status).to.equal(200);
