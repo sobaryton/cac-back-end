@@ -202,8 +202,8 @@ exports.playACard = (req,res,next) => {
     );
 };
 
-shuffle = (arr) => {
-    var i,
+const shuffle = (arr) => {
+    let i,
         j,
         temp;
     for (i = arr.length - 1; i > 0; i--) {
@@ -256,12 +256,11 @@ exports.startAGame = (req,res,next) => {
             let newPlayers = [...game.players];
             let n = 0;
 
-            for(let i=0; i<=numberCardTotal; i++){
+            for(let i=0; i<numberCardTotal; i++){
                 if(newPlayers[n].playerCards.length === 5){
                     n++;
-                } else {
-                    newPlayers[n].playerCards.push(handCardsNew[i]);
                 }
+                newPlayers[n].playerCards.push(handCardsNew[i]);
             }
             
             Game.findOneAndUpdate({_id: req.params.id}, { status: 'in progress', players: newPlayers, $push: {rounds: newRound} }, {new: true, useFindAndModify: false}).then(
