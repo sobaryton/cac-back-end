@@ -266,6 +266,11 @@ exports.voteForACard = (req,res,next) => {
     Game.findOne({_id: req.params.id}).then(
         (game) => {
 
+            //We check first if the game is not finished yet
+            if(game.status === 'finished'){
+                return res.status(400).json({error: 'The game is already finished, you cannot vote.'})
+            }
+
             //We register the vote for a played card
             let emotion = req.body.emotion;
             let cardChoosen = req.params.playedCardId;
@@ -353,7 +358,7 @@ exports.voteForACard = (req,res,next) => {
                 //it should have all five rounds finished
                 //We send back the status game finished
                 if(game.rounds.length === 5 && allRoundsFinished){
-                    Game.findOneAndUpdate({_id: gameId},{ status: 'finished' }, {new: true, useFindAndModify: false}).then(
+                    Game.findOneAndUpdate({_id: gameId},{ status: 'finished', rounds: newBoard }, {new: true, useFindAndModify: false}).then(
                         (finishedGame) => {
                             res.status(200).json({ message: 'Game is finished', game: finishedGame });
                         }

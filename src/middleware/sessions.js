@@ -1,16 +1,17 @@
-const { uniqueNamesGenerator, adjectives, countries, animals } = require('unique-names-generator');
+const { uniqueNamesGenerator, adjectives, colors, countries, animals } = require('unique-names-generator');
 module.exports = (req, res, next) => {
     if(!req.session.userID){
         req.session.userID = 'userID' + makeid(9);
     }
+
     if(!req.session.pseudo){
         const randomName = uniqueNamesGenerator({ 
-            dictionaries: [animals, countries, adjectives],
+            dictionaries: [adjectives, animals, countries],
             length: 2,
-            separator: ' from ',
+            separator: ' ',
             style: 'capital'
         });
-        req.session.pseudo = randomName;
+        req.session.pseudo = 'Dr. ' + randomName;
     }
     next();
 }

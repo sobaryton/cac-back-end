@@ -167,6 +167,7 @@ describe('UPDATE a game information /game/:id', () => {
     describe ('When voting for a card', () => {
         let startedGame;
         let finishedGame;
+        let gameFinishedCompleted;
         let startedGameNewRound;
         let gameLastVote;
 
@@ -312,6 +313,132 @@ describe('UPDATE a game information /game/:id', () => {
             await gameLastVote.save(); 
 
             finishedGame = new Game ({
+                status: 'in progress',
+                owner: userId,
+                players: [
+                    { 
+                        userID: userId,
+                        pseudo: pseudo,
+                        playerCards:['id1','id2','id3','id4','id5']
+                    },
+                    { 
+                        userID: 'nico',
+                        pseudo: 'nicooo',
+                        playerCards:['id6','id7','id8','id9','id10']
+                    }
+                ],
+                rounds: [
+                    {
+                        roundStatus: 'finished',
+                        roundCard: {sentence: 'blablabla1'},
+                        playedCards: [
+                            {
+                                playerId: userId,
+                                votes: [{
+                                    emotion: 'funny',
+                                    playerId: 'nico'
+                                }],
+                                handCardId: 'id1'
+                            },
+                            {
+                                playerId: 'nico',
+                                votes: [{
+                                    emotion: 'funny',
+                                    playerId: userId
+                                }],
+                                handCardId: 'id6'
+                            }
+                        ]
+                    },
+                    {
+                        roundStatus: 'finished',
+                        roundCard: {sentence: 'blablabla2'},
+                        playedCards: [
+                            {
+                                playerId: userId,
+                                votes: [{
+                                    emotion: 'funny',
+                                    playerId: 'nico'
+                                }],
+                                handCardId: 'id2'
+                            },
+                            {
+                                playerId: 'nico',
+                                votes: [{
+                                    emotion: 'funny',
+                                    playerId: userId
+                                }],
+                                handCardId: 'id7'
+                            }
+                        ]
+                    },
+                    {
+                        roundStatus: 'finished',
+                        roundCard: {sentence: 'blablabla3'},
+                        playedCards: [
+                            {
+                                playerId: userId,
+                                votes: [{
+                                    emotion: 'funny',
+                                    playerId: 'nico'
+                                }],
+                                handCardId: 'id3'
+                            },
+                            {
+                                playerId: 'nico',
+                                votes: [{
+                                    emotion: 'funny',
+                                    playerId: userId
+                                }],
+                                handCardId: 'id8'
+                            }
+                        ]
+                    }, {
+                        roundStatus: 'finished',
+                        roundCard: {sentence: 'blablabla4'},
+                        playedCards: [
+                            {
+                                playerId: userId,
+                                votes: [{
+                                    emotion: 'funny',
+                                    playerId: 'nico'
+                                }],
+                                handCardId: 'id4'
+                            },
+                            {
+                                playerId: 'nico',
+                                votes: [{
+                                    emotion: 'funny',
+                                    playerId: userId
+                                }],
+                                handCardId: 'id9'
+                            }
+                        ]
+                    },
+                    {
+                        roundStatus: 'in progress',
+                        roundCard: {sentence: 'blablabla5'},
+                        playedCards: [
+                            {
+                                playerId: userId,
+                                votes: [{
+                                    emotion: 'funny',
+                                    playerId: 'nico'
+                                }],
+                                handCardId: 'id5'
+                            },
+                            {
+                                playerId: 'nico',
+                                votes: [],
+                                handCardId: 'id10'
+                            }
+                        ]
+                    }
+                ]
+            });
+            await finishedGame.save();
+
+            gameFinishedCompleted = new Game ({
                 status: 'finished',
                 owner: userId,
                 players: [
@@ -428,14 +555,17 @@ describe('UPDATE a game information /game/:id', () => {
                             },
                             {
                                 playerId: 'nico',
-                                votes: [],
+                                votes: [{
+                                    emotion: 'funny',
+                                    playerId: userId
+                                }],
                                 handCardId: 'id10'
                             }
                         ]
                     }
                 ]
             });
-            await finishedGame.save();
+            await gameFinishedCompleted.save();
         });
 
         it('should update the status of the game to finished if the last player voted during the last round and should have 5 rounds finished', async () => {
