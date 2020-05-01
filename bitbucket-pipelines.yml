@@ -1,0 +1,26 @@
+image: node:lts-slim
+
+clone:
+ depth: full
+
+test: &test
+  step:
+    name: Test
+    caches:
+      - node
+    script:
+      - npm install
+      - npm test
+
+pipelines:
+  default:
+    - <<: *test
+
+  branches:
+    master:
+      - <<: *test
+      - step:
+          name: Deploy to production
+          deployment: production
+          script:
+            - git push https://heroku:${HEROKU_API_KEY}@git.heroku.com/${HEROKU_APP_NAME}.git HEAD
