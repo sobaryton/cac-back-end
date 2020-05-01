@@ -161,7 +161,11 @@ describe('UPDATE a game information /game/:id', () => {
             .put(`/game/${beforeStartGame.id}`);
             expect(res.status).to.equal(400);
         });
-        
+        it('should not be possible to start a game already started', async () => {
+            const res = await agent
+            .put(`/game/${startedGame.id}`);
+            expect(res.status).to.equal(400);
+        });        
     });
     
     describe ('When voting for a card', () => {
@@ -589,8 +593,19 @@ describe('UPDATE a game information /game/:id', () => {
             expect(pathToVote[pathToVote.length-1].emotion).to.equal(info.emotion);
             expect(pathToVote[pathToVote.length-1].playerId).to.equal(userId);
         });
-        xit('should be possible to vote only for the current round', async () => {
-
+        it('should not be possible to vote for a random round', async () => {
+            const info = { emotion: 'funny' }
+            const res = await agent
+            .put(`/game/${startedGameNewRound.id}/round/FakeRoundID/playedCards/${startedGameNewRound.rounds[0].playedCards[1].id}`)
+            .send(info);
+            expect(res.status).to.equal(400);
+        });
+        it('should not be possible to vote for a finished round', async () => {
+            const info = { emotion: 'funny' }
+            const res = await agent
+            .put(`/game/${startedGame.id}/round/${startedGame.rounds[0].id}/playedCards/${startedGame.rounds[0].playedCards[1].id}`)
+            .send(info);
+            expect(res.status).to.equal(400);
         });
         it('should be possible to pass only an emotion that is validated', async () => {
             const info = { emotion: 'notValidEmotion' }
@@ -642,5 +657,13 @@ describe('UPDATE a game information /game/:id', () => {
 
             expect(existingRoundCards).not.to.include(newRoundCard);
         });
+        it('should return an error if we try to vote when the game is finished', async () => {
+            const info = { emotion: 'funny' }
+            const res = await agent
+            .put(`/game/${gameFinishedCompleted.id}/round/${gameFinishedCompleted.rounds[0].id}/playedCards/${gameFinishedCompleted.rounds[0].playedCards[1].id}`)
+            .send(info);
+
+            expect(res.status).to.equal(400);
+        })
     });
 });

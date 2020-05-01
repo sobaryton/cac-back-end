@@ -31,6 +31,7 @@ chai.use(chaiSubset);
 describe('POST a game information /game/:id', () => {  
     let beganGame;
     let startedGame;
+    let gameWith2Rounds;
     let userId;
     let pseudo;
     let agent;
@@ -103,6 +104,59 @@ describe('POST a game information /game/:id', () => {
             ]
         });
         await startedGame.save(); 
+
+        gameWith2Rounds = new Game ({
+            status: 'in progress',
+            owner: 'nico',
+            players: [
+                { 
+                    userID: userId,
+                    pseudo: pseudo,
+                    playerCards:['id2','id3','id4','id5']
+                },
+                { 
+                    userID: 'nico',
+                    pseudo: 'niKKo',
+                    playerCards:['id7','id8','id9','id10']
+                }
+            ],
+            rounds: [
+                {
+                    roundStatus: 'finished',
+                    roundCard: {sentence: 'blablabla'},
+                    playedCards: [
+                        {
+                            playerId: userId,
+                            votes: [{
+                                emotion: 'funny',
+                                playerId: 'nico'
+                            }],
+                            handCardId: 'id1'
+                        },
+                        {
+                            playerId: 'nico',
+                            votes: [{
+                                emotion: 'funny',
+                                playerId: userId
+                            }],
+                            handCardId: 'id6'
+                        }
+                    ]
+                },
+                {
+                    roundStatus: 'in progress',
+                    roundCard: {sentence: 'blablabla'},
+                    playedCards: [
+                        {
+                            playerId: 'nico',
+                            votes: [],
+                            handCardId: 'id6'
+                        }
+                    ]
+                }
+            ]
+        });
+        await gameWith2Rounds.save();
 
     });
 
@@ -186,6 +240,18 @@ describe('POST a game information /game/:id', () => {
         it('is only possible to play one card per round', async () => {
             const res = await agent
             .post(`/game/${startedGame.id}/round/${startedGame.rounds[0].id}`)
+            .send({card:'id2'});
+            expect(res.status).to.equal(400);
+        });
+        it('should not be possible to play a card in a finished round', async () => {
+            const res = await agent
+            .post(`/game/${gameWith2Rounds.id}/round/${gameWith2Rounds.rounds[0].id}`)
+            .send({card:'id2'});
+            expect(res.status).to.equal(400);
+        });
+        it('should not be possible to play a card in a non-exisiting round', async () => {
+            const res = await agent
+            .post(`/game/${startedGame.id}/round/fakeID`)
             .send({card:'id2'});
             expect(res.status).to.equal(400);
         });

@@ -4,19 +4,8 @@ module.exports = (req, res, next) => {
         req.session.userID = 'userID' + makeid(9);
     }
 
-    const titles = [
-        'Dr.',
-        'Doc.',
-        'Prof.',
-        'Mr.',
-        'Miss',
-        'Mrs.',
-        'Sir',
-        'Lord',
-        'Lady'
-    ];
-
     if(!req.session.pseudo){
+
         //try Adjective + Animal
         const randomName1 = uniqueNamesGenerator({ 
             dictionaries: [adjectives, animals, countries],
@@ -24,6 +13,7 @@ module.exports = (req, res, next) => {
             separator: ' ',
             style: 'capital'
         });
+
         //Try Color + Animal
         const randomName2 = uniqueNamesGenerator({ 
             dictionaries: [colors, animals, countries],
@@ -31,13 +21,27 @@ module.exports = (req, res, next) => {
             separator: ' ',
             style: 'capital'
         });
+
         //Take the one smaller
         let name = [randomName1, randomName2].sort((a,b) => a.length - b.length)[0];
         let title = chooseTitle(titles);
         req.session.pseudo = title + ' ' + name;
     }
+    
     next();
 }
+
+const titles = [
+    'Dr.',
+    'Doc.',
+    'Prof.',
+    'Mr.',
+    'Miss',
+    'Mrs.',
+    'Sir',
+    'Lord',
+    'Lady'
+];
 
 makeid = (length) => {
     var result           = '';
