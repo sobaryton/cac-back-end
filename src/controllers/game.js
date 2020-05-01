@@ -9,6 +9,7 @@ exports.getAGame = (req,res,next) => {
             //Join the game - block if already already begun or finished
             //Add the user that join if status is waiting
             let user = req.session.userID;
+            let pseudoPlayer = req.session.pseudo;
 
             let isPlayerInTheGame = false;
             for(let i=0; i<game.players.length; i++){
@@ -20,12 +21,23 @@ exports.getAGame = (req,res,next) => {
 
             //If player already in the game, return the game
             if (isPlayerInTheGame) {
-                res.status(200).json({game: game});
+                return res.status(200).json({game: game});
             } 
+
+            //If the player is the 7th player, return an error
+            if(!isPlayerInTheGame && game.players.length + 1 >= 7){
+                return res.status(400).json({error: 'Sorry, you cannot join the game, as there are maximum 6 players for a game.'})
+            }
+
             //if the game is in status waiting, add the user to the game
-            else if(game.status === 'waiting'){
+            if(game.status === 'in progress'){
+                return res.status(400).json({ error: 'The game has already started, you cannot join it' });
+            } else if (game.status === 'finished'){
+                return res.status(200).json({ error: 'The game is already finished, you cannot join it', game: game });
+            } else if (game.status === 'waiting'){
                 let newPlayer = {
                     userID: user,
+                    pseudo: pseudoPlayer,
                     playerCards:[]
                 }
                 let newPlayers = [...game.players];
@@ -41,9 +53,8 @@ exports.getAGame = (req,res,next) => {
                         res.status(400).json({ error: err });
                     }
                 )
-            } 
-            else {
-                res.status(200).json({ error: 'The game is already finished or started, you cannot join it', game: game });
+            } else {
+                return res.status(400).json({ error: 'The game is already finished or started, you cannot join it' });
             }
         }
     )
@@ -58,8 +69,10 @@ exports.createAGame = (req,res,next) => {
     let newGame = new Game();
 
     let creator = req.session.userID;
+    let pseudoPlayer = req.session.pseudo;
     newGame.players.push({
         userID: creator,
+        pseudo: pseudoPlayer,
         playerCards: []
     });
     newGame.owner = creator;
@@ -83,6 +96,17 @@ exports.playACard = (req,res,next) => {
 
             let playedCard = req.body.card;
             let currentPlayer = req.session.userID;
+
+            //Find the round id, you are playing
+            let currentRound = game.rounds.filter(round => round.id === req.params.roundId)[0];
+            if(currentRound === undefined){
+                return res.status(400).json({error: `The round with this ID "${req.body.roundId}" is not a valid round ID.`})
+            }
+            if(currentRound.roundStatus !== 'in progress'){
+                return res.status(400).json({error: 'The round you want to play is not in progress.'})
+            }
+
+            let currentRoundID = currentRound.id;
 
             //We will check first if the player is a player of the game
             let isPlayerInTheGame = false;
@@ -148,10 +172,6 @@ exports.playACard = (req,res,next) => {
                     votes: [],
                     handCardId: playedCard
                 };
-
-            
-            //Find the round id, you are playing
-            let currentRoundID = game.rounds.filter(round => round.id === req.params.roundId)[0].id;
             
             //We loop through the game rounds array and find a round that have the same id as the current round in parameters of the request
             for(let i = 0; i<newBoard.length; i++){
@@ -198,9 +218,21 @@ shuffle = (arr) => {
 exports.startAGame = (req,res,next) => {
     Game.findOne({_id: req.params.id}).then(
         (game) => {
+            //Check if the game is waiting, otherwise you cannot start it
+            if(game.status !== 'waiting'){
+                return res.status(400).json({error: `The game ${game._id} is not in a status of waiting but is ${game.status}, therefore you cannot start it.`})
+            }
+
+            //If you do not have at least 2 players, you cannot start the game
             if(game.players.length < 2){
                 return res.status(400).json({ error: 'Need at least two players to play a game' });
             } 
+            //If there are more than 6 players, you cannot play
+            if(game.players.length > 6 ){
+                return res.status(400).json({ error: 'There are more than 6 players in the game, you cannot play.' });
+            }
+
+            //Check that the owner of the game can ONLY start the game
             let playerPressingStart = req.session.userID;
             if (playerPressingStart !== game.owner) {
                 return res.status(400).json({ error: `The player who has to start the game should be the owner of the game: ${game.owner} `});
@@ -262,6 +294,24 @@ exports.voteForACard = (req,res,next) => {
     Game.findOne({_id: req.params.id}).then(
         (game) => {
 
+            //We check first if the game is not finished yet
+            if(game.status === 'finished'){
+                return res.status(400).json({error: 'The game is already finished, you cannot vote.'})
+            }
+
+            //Find the round id, you are playing
+            let currentRound = game.rounds.filter(round => round.id === req.params.roundId)[0];
+
+            if(currentRound === undefined){
+                return res.status(400).json({ error: `The round has an undefined ID: "${req.params.roundId}"` });
+            }
+
+            if(currentRound.roundStatus !== 'in progress'){
+                return res.status(400).json({ error: `The round is not in progress: "${currentRound.roundStatus}"` });
+            }
+
+            let currentRoundID = currentRound.id;
+
             //We register the vote for a played card
             let emotion = req.body.emotion;
             let cardChoosen = req.params.playedCardId;
@@ -281,9 +331,6 @@ exports.voteForACard = (req,res,next) => {
                 emotion: emotion,
                 playerId: currentPlayer
             };
-            
-            //Find the round id, you are playing
-            let currentRoundID = game.rounds.filter(round => round.id === req.params.roundId)[0].id;
             
             //We loop through the game rounds array and find a round that have the same id as the current round in parameters of the request
             for(let i = 0; i<newBoard.length; i++){
@@ -349,7 +396,7 @@ exports.voteForACard = (req,res,next) => {
                 //it should have all five rounds finished
                 //We send back the status game finished
                 if(game.rounds.length === 5 && allRoundsFinished){
-                    Game.findOneAndUpdate({_id: gameId},{ status: 'finished' }, {new: true, useFindAndModify: false}).then(
+                    Game.findOneAndUpdate({_id: gameId},{ status: 'finished', rounds: newBoard }, {new: true, useFindAndModify: false}).then(
                         (finishedGame) => {
                             res.status(200).json({ message: 'Game is finished', game: finishedGame });
                         }

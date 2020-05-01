@@ -30,13 +30,15 @@ chai.use(chaiSubset);
 
 describe('UPDATE a game information /game/:id', () => { 
     let userId;
+    let pseudo;
     let agent;
     beforeEach( async () => {
         agent = chai.request.agent(app);
         const res = await agent
         .get(`/user`);
         userId = res.body.userId;
-        console.log(userId);
+        pseudo = res.body.pseudo;
+        console.log(userId, ' ', pseudo);
     })
 
     describe ('Begin a game', () => {
@@ -58,10 +60,12 @@ describe('UPDATE a game information /game/:id', () => {
                 players: [
                     { 
                         userID: 'soso',
+                        pseudo: 'soso',
                         playerCards:[]
                     },
                     { 
                         userID: 'nico',
+                        pseudo: 'nico',
                         playerCards:[]
                     }
                 ]
@@ -74,10 +78,12 @@ describe('UPDATE a game information /game/:id', () => {
                 players: [
                     { 
                         userID: userId,
+                        pseudo: pseudo,
                         playerCards:[]
                     },
                     { 
                         userID: 'nico',
+                        pseudo: 'niccco',
                         playerCards:[]
                     }
                 ]
@@ -90,10 +96,12 @@ describe('UPDATE a game information /game/:id', () => {
                 players: [
                     { 
                         userID: userId,
+                        pseudo: pseudo,
                         playerCards:['id2','id3','id4','id5']
                     },
                     { 
                         userID: 'nico',
+                        pseudo: 'nico',
                         playerCards:['id7','id8','id9','id10']
                     }
                 ],
@@ -153,12 +161,17 @@ describe('UPDATE a game information /game/:id', () => {
             .put(`/game/${beforeStartGame.id}`);
             expect(res.status).to.equal(400);
         });
-        
+        it('should not be possible to start a game already started', async () => {
+            const res = await agent
+            .put(`/game/${startedGame.id}`);
+            expect(res.status).to.equal(400);
+        });        
     });
     
     describe ('When voting for a card', () => {
         let startedGame;
         let finishedGame;
+        let gameFinishedCompleted;
         let startedGameNewRound;
         let gameLastVote;
 
@@ -170,10 +183,12 @@ describe('UPDATE a game information /game/:id', () => {
                 players: [
                     { 
                         userID: userId,
+                        pseudo: pseudo,
                         playerCards:['id2','id3','id4','id5']
                     },
                     { 
                         userID: 'nico',
+                        pseudo: 'nikkko',
                         playerCards:['id7','id8','id9','id10']
                     }
                 ],
@@ -229,10 +244,12 @@ describe('UPDATE a game information /game/:id', () => {
                 players: [
                     { 
                         userID: userId,
+                        pseudo: pseudo,
                         playerCards:['id2','id3','id4','id5']
                     },
                     { 
                         userID: 'nico',
+                        pseudo: 'ojononn',
                         playerCards:['id7','id8','id9','id10']
                     }
                 ],
@@ -266,10 +283,12 @@ describe('UPDATE a game information /game/:id', () => {
                 players: [
                     { 
                         userID: userId,
+                        pseudo: pseudo,
                         playerCards:['id2','id3','id4','id5']
                     },
                     { 
                         userID: 'nico',
+                        pseudo: 'niccocoo',
                         playerCards:['id7','id8','id9','id10']
                     }
                 ],
@@ -298,15 +317,143 @@ describe('UPDATE a game information /game/:id', () => {
             await gameLastVote.save(); 
 
             finishedGame = new Game ({
+                status: 'in progress',
+                owner: userId,
+                players: [
+                    { 
+                        userID: userId,
+                        pseudo: pseudo,
+                        playerCards:['id1','id2','id3','id4','id5']
+                    },
+                    { 
+                        userID: 'nico',
+                        pseudo: 'nicooo',
+                        playerCards:['id6','id7','id8','id9','id10']
+                    }
+                ],
+                rounds: [
+                    {
+                        roundStatus: 'finished',
+                        roundCard: {sentence: 'blablabla1'},
+                        playedCards: [
+                            {
+                                playerId: userId,
+                                votes: [{
+                                    emotion: 'funny',
+                                    playerId: 'nico'
+                                }],
+                                handCardId: 'id1'
+                            },
+                            {
+                                playerId: 'nico',
+                                votes: [{
+                                    emotion: 'funny',
+                                    playerId: userId
+                                }],
+                                handCardId: 'id6'
+                            }
+                        ]
+                    },
+                    {
+                        roundStatus: 'finished',
+                        roundCard: {sentence: 'blablabla2'},
+                        playedCards: [
+                            {
+                                playerId: userId,
+                                votes: [{
+                                    emotion: 'funny',
+                                    playerId: 'nico'
+                                }],
+                                handCardId: 'id2'
+                            },
+                            {
+                                playerId: 'nico',
+                                votes: [{
+                                    emotion: 'funny',
+                                    playerId: userId
+                                }],
+                                handCardId: 'id7'
+                            }
+                        ]
+                    },
+                    {
+                        roundStatus: 'finished',
+                        roundCard: {sentence: 'blablabla3'},
+                        playedCards: [
+                            {
+                                playerId: userId,
+                                votes: [{
+                                    emotion: 'funny',
+                                    playerId: 'nico'
+                                }],
+                                handCardId: 'id3'
+                            },
+                            {
+                                playerId: 'nico',
+                                votes: [{
+                                    emotion: 'funny',
+                                    playerId: userId
+                                }],
+                                handCardId: 'id8'
+                            }
+                        ]
+                    }, {
+                        roundStatus: 'finished',
+                        roundCard: {sentence: 'blablabla4'},
+                        playedCards: [
+                            {
+                                playerId: userId,
+                                votes: [{
+                                    emotion: 'funny',
+                                    playerId: 'nico'
+                                }],
+                                handCardId: 'id4'
+                            },
+                            {
+                                playerId: 'nico',
+                                votes: [{
+                                    emotion: 'funny',
+                                    playerId: userId
+                                }],
+                                handCardId: 'id9'
+                            }
+                        ]
+                    },
+                    {
+                        roundStatus: 'in progress',
+                        roundCard: {sentence: 'blablabla5'},
+                        playedCards: [
+                            {
+                                playerId: userId,
+                                votes: [{
+                                    emotion: 'funny',
+                                    playerId: 'nico'
+                                }],
+                                handCardId: 'id5'
+                            },
+                            {
+                                playerId: 'nico',
+                                votes: [],
+                                handCardId: 'id10'
+                            }
+                        ]
+                    }
+                ]
+            });
+            await finishedGame.save();
+
+            gameFinishedCompleted = new Game ({
                 status: 'finished',
                 owner: userId,
                 players: [
                     { 
                         userID: userId,
+                        pseudo: pseudo,
                         playerCards:['id1','id2','id3','id4','id5']
                     },
                     { 
                         userID: 'nico',
+                        pseudo: 'nicooo',
                         playerCards:['id6','id7','id8','id9','id10']
                     }
                 ],
@@ -412,14 +559,17 @@ describe('UPDATE a game information /game/:id', () => {
                             },
                             {
                                 playerId: 'nico',
-                                votes: [],
+                                votes: [{
+                                    emotion: 'funny',
+                                    playerId: userId
+                                }],
                                 handCardId: 'id10'
                             }
                         ]
                     }
                 ]
             });
-            await finishedGame.save();
+            await gameFinishedCompleted.save();
         });
 
         it('should update the status of the game to finished if the last player voted during the last round and should have 5 rounds finished', async () => {
@@ -428,6 +578,7 @@ describe('UPDATE a game information /game/:id', () => {
             .put(`/game/${finishedGame.id}/round/${finishedGame.rounds[4].id}/playedCards/${finishedGame.rounds[4].playedCards[1].id}`)
             .send(info);
             expect(res.body.game.status).to.equal('finished');
+            expect(res.body.game.rounds[res.body.game.rounds.length -1].roundStatus).to.equal('finished');
             expect(res.body.game.rounds).to.have.length.lessThan(6);
             expect(res.body.game.rounds).to.have.length.above(4);
             expect(res.status).to.equal(200);
@@ -442,8 +593,19 @@ describe('UPDATE a game information /game/:id', () => {
             expect(pathToVote[pathToVote.length-1].emotion).to.equal(info.emotion);
             expect(pathToVote[pathToVote.length-1].playerId).to.equal(userId);
         });
-        xit('should be possible to vote only for the current round', async () => {
-
+        it('should not be possible to vote for a random round', async () => {
+            const info = { emotion: 'funny' }
+            const res = await agent
+            .put(`/game/${startedGameNewRound.id}/round/FakeRoundID/playedCards/${startedGameNewRound.rounds[0].playedCards[1].id}`)
+            .send(info);
+            expect(res.status).to.equal(400);
+        });
+        it('should not be possible to vote for a finished round', async () => {
+            const info = { emotion: 'funny' }
+            const res = await agent
+            .put(`/game/${startedGame.id}/round/${startedGame.rounds[0].id}/playedCards/${startedGame.rounds[0].playedCards[1].id}`)
+            .send(info);
+            expect(res.status).to.equal(400);
         });
         it('should be possible to pass only an emotion that is validated', async () => {
             const info = { emotion: 'notValidEmotion' }
@@ -495,5 +657,13 @@ describe('UPDATE a game information /game/:id', () => {
 
             expect(existingRoundCards).not.to.include(newRoundCard);
         });
+        it('should return an error if we try to vote when the game is finished', async () => {
+            const info = { emotion: 'funny' }
+            const res = await agent
+            .put(`/game/${gameFinishedCompleted.id}/round/${gameFinishedCompleted.rounds[0].id}/playedCards/${gameFinishedCompleted.rounds[0].playedCards[1].id}`)
+            .send(info);
+
+            expect(res.status).to.equal(400);
+        })
     });
 });
