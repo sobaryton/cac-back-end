@@ -4,7 +4,8 @@
   "description": "",
   "main": "game.test.js",
   "scripts": {
-    "test": "mocha -w test/**/*.test.js",
+    "test": "mocha --exit test/**/*.test.js",
+    "test:watch": "mocha --watch test/**/*.test.js",
     "debug": "node --nolazy --inspect-brk=9229 server.js"
   },
   "repository": {
