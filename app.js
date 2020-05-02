@@ -24,7 +24,7 @@ mongoose.connect(process.env.MONGO_DB_CONNECTION_STRING, { useUnifiedTopology: t
 });
 
 app.use(session({
-    secret: '5896kjkbef654ergojn5',
+    secret: process.env.SESSION_SECRET,
     name: 'CACoro',
     store: new MongoStore({ mongooseConnection: mongoose.connection }), // connect-mongo session store
     proxy: true,
@@ -32,12 +32,15 @@ app.use(session({
     saveUninitialized: true,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
-      httpOnly: true
+      httpOnly: true, // disallows manipulating the cookie with client-side Javascript
+      sameSite: 'strict', // cookies only sent if URL matches
+      secure: true, // cookies only sent with HTTPS calls
     }
 }));
 
 app.use(bodyParser.json());
 
+// Allow any website to call this API.
 app.use(cors({
     credentials: true,
     origin: (origin, callback) => callback(null, true),
