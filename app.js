@@ -33,8 +33,8 @@ app.use(session({
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
       httpOnly: true, // disallows manipulating the cookie with client-side Javascript
-      sameSite: 'strict', // cookies only sent if URL matches
-      secure: 'dev' !== process.env.APP_ENV, // cookies only sent with HTTPS calls
+      sameSite: 'none', // TODO: when website in production, would be good to set to "strict"
+      secure: 'dev' !== process.env.APP_ENV, // cookies only sent by client on HTTPS connections (disabled for testing and dev)
     }
 }));
 
