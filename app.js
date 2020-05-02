@@ -34,7 +34,7 @@ app.use(session({
       maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
       httpOnly: true, // disallows manipulating the cookie with client-side Javascript
       sameSite: 'strict', // cookies only sent if URL matches
-      secure: true, // cookies only sent with HTTPS calls
+      secure: 'dev' !== process.env.APP_ENV, // cookies only sent with HTTPS calls
     }
 }));
 
