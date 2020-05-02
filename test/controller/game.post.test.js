@@ -6,10 +6,11 @@ const Game = require('../../src/models/game');
 const mongoose = require ('mongoose');
 const chaiSubset = require('chai-subset');
 
-before(() => {
+before((done) => {
     mongoose.connect(process.env.MONGO_DB_CONNECTION_STRING, { useUnifiedTopology: true, useNewUrlParser: true })
     .then(()=>{
         console.log('Successfully connected to Mongo DB Atlas');
+        done();
     })
     .catch(error=>{
         console.log('Error when connecting to MongoDB');
