@@ -45,7 +45,6 @@ describe('GET a game information /game/:id', () => {
         .get(`/user`);
         userId = res.body.userId;
         pseudo = res.body.pseudo;
-        console.log(userId,' ',pseudo);
 
         game = new Game({
             owner: userId
