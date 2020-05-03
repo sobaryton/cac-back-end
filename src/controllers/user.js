@@ -18,3 +18,10 @@ exports.updatePseudo = (req,res,next) => {
     }
 }
 
+exports.logout = (req,res,next) => {
+    req.session.destroy( () => {
+        // cannot access session here
+        res.clearCookie('CACoro').status(200).json({message: 'Cookie destroyed, successfull logout'});
+    });
+    
+}

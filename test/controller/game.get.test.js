@@ -233,9 +233,6 @@ describe('GET a game information /game/:id', () => {
             .get(`/game/${gameWith6Players.id}`);
             expect(res.status).to.equal(400);
         });
-        xit('when I go to the site, when the site respond there is a cookie with a user which is in the DB', async () => {
-            
-        });
     });
 
     describe('Existing Game structure', () => {
