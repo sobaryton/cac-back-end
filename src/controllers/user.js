@@ -10,6 +10,7 @@ exports.updatePseudo = (req,res,next) => {
     if (newP.length < 20) {
         req.session.pseudo = newP;
         res.status(200).json({
+            userId: req.session.userID,
             pseudo: newP
         })
     } else {
