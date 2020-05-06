@@ -91,7 +91,7 @@ describe('GET a game information /game/:id', () => {
                                 emotion: 'cute',
                                 playerId: 'nico'
                             }],
-                            handCardId: 'id1'
+                            handCard: {id: 0, text: 'id1'}
                         },
                         {
                             playerId: 'playerID2',
@@ -99,7 +99,7 @@ describe('GET a game information /game/:id', () => {
                                 emotion: 'cute',
                                 playerId: userId
                             }],
-                            handCardId: 'id2'
+                            handCard: {id: 1, text: 'id2'}
                         }
                     ]
                 },
@@ -277,7 +277,7 @@ describe('GET a game information /game/:id', () => {
                                     emotion: 'blabla',
                                     playerId: 'playerID2'
                                 }],
-                                handCardId: 'hand card1'
+                                handCard: {id: 0, text: 'id1'}
                             },
                             {
                                 playerId: 'playerID2',
@@ -285,7 +285,7 @@ describe('GET a game information /game/:id', () => {
                                     emotion: 'blaa',
                                     playerId: 'playerID'
                                 }],
-                                handCardId: 'hand card2'
+                                handCard:  {id: 1, text: 'id2'}
                             }
                         ]
                     },
@@ -299,7 +299,7 @@ describe('GET a game information /game/:id', () => {
                                     emotion: 'blabla',
                                     playerId: 'playerID2'
                                 }],
-                                handCardId: 'hand card3'
+                                handCard: {id: 2, text: 'id3'}
                             },
                             {
                                 playerId: 'playerID2',
@@ -307,7 +307,7 @@ describe('GET a game information /game/:id', () => {
                                     emotion: 'blaa',
                                     playerId: 'playerID'
                                 }],
-                                handCardId: 'hand card4'
+                                handCard: {id: 3, text: 'id4'}
                             }
                         ]
                     },
@@ -321,7 +321,7 @@ describe('GET a game information /game/:id', () => {
                                     emotion: 'blabla',
                                     playerId: 'playerID2'
                                 }],
-                                handCardId: 'hand card5'
+                                handCard: {id: 4, text: 'id5'}
                             },
                             {
                                 playerId: 'playerID2',
@@ -329,7 +329,7 @@ describe('GET a game information /game/:id', () => {
                                     emotion: 'blaa',
                                     playerId: 'playerID'
                                 }],
-                                handCardId: 'hand card6'
+                                handCard: {id: 5, text: 'id6'}
                             }
                         ]
                     }, {
@@ -342,7 +342,7 @@ describe('GET a game information /game/:id', () => {
                                     emotion: 'blabla',
                                     playerId: 'playerID2'
                                 }],
-                                handCardId: 'hand card7'
+                                handCard: {id: 6, text: 'id7'}
                             },
                             {
                                 playerId: 'playerID2',
@@ -350,7 +350,7 @@ describe('GET a game information /game/:id', () => {
                                     emotion: 'blaa',
                                     playerId: 'playerID'
                                 }],
-                                handCardId: 'hand card8'
+                                handCard: {id: 7, text: 'id8'}
                             }
                         ]
                     },
@@ -364,7 +364,7 @@ describe('GET a game information /game/:id', () => {
                                     emotion: 'blabla',
                                     playerId: 'playerID2'
                                 }],
-                                handCardId: 'hand card9'
+                                handCard: {id: 8, text: 'id9'}
                             },
                             {
                                 playerId: 'playerID2',
@@ -372,7 +372,7 @@ describe('GET a game information /game/:id', () => {
                                     emotion: 'blaa',
                                     playerId: 'playerID'
                                 }],
-                                handCardId: 'hand card10'
+                                handCard: {id: 9, text: 'id10'}
                             }
                         ]
                     }

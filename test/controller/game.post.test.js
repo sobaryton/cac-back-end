@@ -92,12 +92,12 @@ describe('POST a game information /game/:id', () => {
                         {
                             playerId: userId,
                             votes: [],
-                            handCardId: 'id1'
+                            handCard: {id: 0, text: 'id1'}
                         },
                         {
                             playerId: 'nico',
                             votes: [],
-                            handCardId: 'id6'
+                            handCard: {id: 6, text: 'id6'}
                         }
                     ]
                 }
@@ -131,7 +131,7 @@ describe('POST a game information /game/:id', () => {
                                 emotion: 'funny',
                                 playerId: 'nico'
                             }],
-                            handCardId: 'id1'
+                            handCard: {id: 0, text: 'id1'}
                         },
                         {
                             playerId: 'nico',
@@ -139,7 +139,7 @@ describe('POST a game information /game/:id', () => {
                                 emotion: 'funny',
                                 playerId: userId
                             }],
-                            handCardId: 'id6'
+                            handCard: {id: 5, text: 'id6'}
                         }
                     ]
                 },
@@ -150,7 +150,7 @@ describe('POST a game information /game/:id', () => {
                         {
                             playerId: 'nico',
                             votes: [],
-                            handCardId: 'id6'
+                            handCard: {id: 5, text: 'id6'}
                         }
                     ]
                 }
@@ -216,17 +216,24 @@ describe('POST a game information /game/:id', () => {
             //check if the card is in the board
             const lastRoundPlayedIndex = res.body.game.rounds.length-1; 
             const lastPlayedCardIndex = res.body.game.rounds[lastRoundPlayedIndex].playedCards.length-1;
-            expect(res.body.game.rounds[lastRoundPlayedIndex].playedCards[lastPlayedCardIndex].handCardId).to.equal(newInfo.card.text);
+            expect(res.body.game.rounds[lastRoundPlayedIndex].playedCards[lastPlayedCardIndex].handCard.text).to.equal(newInfo.card.text);
+            expect(res.body.game.rounds[lastRoundPlayedIndex].playedCards[lastPlayedCardIndex].handCard.id).to.equal(newInfo.card.id);
 
             //check if the card has been removed from the hand
-            //expect(res.body.game.players.toString().indexOf(newInfo.card)).to.equal(-1);
-            expect(res.body.game.players.flatMap(player => player.playerCards.id)).not.to.include(newInfo.card.id);
+            expect(res.body.game.players.flatMap(player => player.playerCards).map(card => card.id)).not.to.include(newInfo.card.id);
         });
 
         it('should not be possible to play a card that is not in your hand', async () => {
             const res = await agent
             .post(`/game/${beganGame.id}/round/${beganGame.rounds[0].id}`)
             .send({card:{text: 'testCard', id: 256982}});
+            expect(res.status).to.equal(400);
+        });
+
+        it('should not be possible to play a card mismatching ID and TEXT from his hand', async () => {
+            const res = await agent
+            .post(`/game/${beganGame.id}/round/${beganGame.rounds[0].id}`)
+            .send({card:{text: 'id2', id: 0}});
             expect(res.status).to.equal(400);
         });
 

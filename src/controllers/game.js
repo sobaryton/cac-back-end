@@ -102,9 +102,9 @@ exports.startAGame = (req,res,next) => {
                 return res.status(400).json({ error: 'Need at least two players to play a game' });
             } 
             //If there are more than 6 players, you cannot play
-            if(game.players.length > 6 ){
-                return res.status(400).json({ error: 'There are more than 6 players in the game, you cannot play.' });
-            }
+            // if(game.players.length > 6 ){
+            //     return res.status(400).json({ error: 'There are more than 6 players in the game, you cannot play.' });
+            // }
 
             //Check that the owner of the game can ONLY start the game
             let playerPressingStart = req.session.userID;
@@ -125,7 +125,7 @@ exports.startAGame = (req,res,next) => {
 
             //add the cards randomly to the players
             let numberCardTotal = (game.players.length)*5;
-            let handCardsNew = [...HandCards.HandCards.cards];
+            let handCardsNew = HandCards.HandCards.cards.map((text, id) => ({id, text}));
             handCardsNew =  shuffle(handCardsNew);
             let newPlayers = [...game.players];
             let n = 0;
@@ -219,13 +219,12 @@ exports.playACard = (req,res,next) => {
             for(let i = 0; i<currentPlayerObj.length; i++){
                 if(currentPlayerObj[i].userID === currentPlayer){
 
-                    if(currentPlayerObj[i].playerCards.filter(c => c.text === playedCard.text).length === 0){
+                    if(currentPlayerObj[i].playerCards.filter(c => c.text === playedCard.text && c.id === playedCard.id).length === 0){
                         //the card is not in the set of cards of the player, return an error
                         return res.status(400).json({ error: `The player can\'t play the card ${playedCard.text}, as this is not in the set of the player ${currentPlayer}` });
                     }
 
                     //replace in the current player card array in players with the new array of cards
-                    // currentPlayerObj[i].playerCards.splice(0, currentPlayerObj[i].playerCards.length, ...newPlayerHand);
                     currentPlayerObj[i].playerCards = currentPlayerObj[i].playerCards.filter(card => card.id !== playedCard.id)
                     break;
                 }
@@ -240,7 +239,7 @@ exports.playACard = (req,res,next) => {
                 {
                     playerId: currentPlayer,
                     votes: [],
-                    handCardId: playedCard.text
+                    handCard: playedCard
                 };
             
             //We loop through the game rounds array and find a round that have the same id as the current round in parameters of the request
