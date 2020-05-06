@@ -58,12 +58,12 @@ describe('POST a game information /game/:id', () => {
                 { 
                     userID: userId,
                     pseudo: pseudo,
-                    playerCards:['id1','id2','id3','id4','id5']
+                    playerCards:[{text: "id1", id: 0}, {text: "id2", id: 1},{text: "id3", id: 2},{text: "id4", id: 3},{text: "id5", id: 4}]
                 },
                 { 
                     userID: 'nico',
                     pseudo: 'niKKo',
-                    playerCards:['id6','id7','id8','id9','id10']
+                    playerCards:[{text: "id6", id: 5}, {text: "id7", id: 6},{text: "id8", id: 7},{text: "id9", id: 8},{text: "id10", id: 9}]
                 }
             ]
         });
@@ -76,12 +76,12 @@ describe('POST a game information /game/:id', () => {
                 { 
                     userID: userId,
                     pseudo: pseudo,
-                    playerCards:['id2','id3','id4','id5']
+                    playerCards:[{text: "id2", id: 1}, {text: "id3", id: 2},{text: "id4", id: 3},{text: "id5", id: 4}]
                 },
                 { 
                     userID: 'nico',
                     pseudo: 'niKKo',
-                    playerCards:['id7','id8','id9','id10']
+                    playerCards:[{text: "id7", id: 6}, {text: "id8", id: 7},{text: "id9", id: 8},{text: "id10", id: 9}]
                 }
             ],
             rounds: [
@@ -92,12 +92,12 @@ describe('POST a game information /game/:id', () => {
                         {
                             playerId: userId,
                             votes: [],
-                            handCardId: 'id1'
+                            handCard: {id: 0, text: 'id1'}
                         },
                         {
                             playerId: 'nico',
                             votes: [],
-                            handCardId: 'id6'
+                            handCard: {id: 6, text: 'id6'}
                         }
                     ]
                 }
@@ -112,12 +112,12 @@ describe('POST a game information /game/:id', () => {
                 { 
                     userID: userId,
                     pseudo: pseudo,
-                    playerCards:['id2','id3','id4','id5']
+                    playerCards:[{text: "id2", id: 1}, {text: "id3", id: 2},{text: "id4", id: 3},{text: "id5", id: 4}]
                 },
                 { 
                     userID: 'nico',
                     pseudo: 'niKKo',
-                    playerCards:['id7','id8','id9','id10']
+                    playerCards:[{text: "id7", id: 6}, {text: "id8", id: 7},{text: "id9", id: 8},{text: "id10", id: 9}]
                 }
             ],
             rounds: [
@@ -131,7 +131,7 @@ describe('POST a game information /game/:id', () => {
                                 emotion: 'funny',
                                 playerId: 'nico'
                             }],
-                            handCardId: 'id1'
+                            handCard: {id: 0, text: 'id1'}
                         },
                         {
                             playerId: 'nico',
@@ -139,7 +139,7 @@ describe('POST a game information /game/:id', () => {
                                 emotion: 'funny',
                                 playerId: userId
                             }],
-                            handCardId: 'id6'
+                            handCard: {id: 5, text: 'id6'}
                         }
                     ]
                 },
@@ -150,7 +150,7 @@ describe('POST a game information /game/:id', () => {
                         {
                             playerId: 'nico',
                             votes: [],
-                            handCardId: 'id6'
+                            handCard: {id: 5, text: 'id6'}
                         }
                     ]
                 }
@@ -203,12 +203,12 @@ describe('POST a game information /game/:id', () => {
         it('should return successful status 200', async () => {
             const res = await agent
             .post(`/game/${beganGame.id}/round/${beganGame.rounds[0].id}`)
-            .send({card:'id2'});
+            .send({card:{text: 'id2', id: 1}});
             expect(res.status).to.equal(200);
         });
 
         it('should remove the card from the hand and put it in the round', async () => {
-            const newInfo = {card:'id2'};
+            const newInfo = {card:{text: 'id2', id: 1}};
             const res = await agent
             .post(`/game/${beganGame.id}/round/${beganGame.rounds[0].id}`)
             .send(newInfo);
@@ -216,43 +216,50 @@ describe('POST a game information /game/:id', () => {
             //check if the card is in the board
             const lastRoundPlayedIndex = res.body.game.rounds.length-1; 
             const lastPlayedCardIndex = res.body.game.rounds[lastRoundPlayedIndex].playedCards.length-1;
-            expect(res.body.game.rounds[lastRoundPlayedIndex].playedCards[lastPlayedCardIndex].handCardId).to.equal(newInfo.card);
+            expect(res.body.game.rounds[lastRoundPlayedIndex].playedCards[lastPlayedCardIndex].handCard.text).to.equal(newInfo.card.text);
+            expect(res.body.game.rounds[lastRoundPlayedIndex].playedCards[lastPlayedCardIndex].handCard.id).to.equal(newInfo.card.id);
 
             //check if the card has been removed from the hand
-            //expect(res.body.game.players.toString().indexOf(newInfo.card)).to.equal(-1);
-            expect(res.body.game.players.flatMap(player => player.playerCards)).not.to.include(newInfo.card);
+            expect(res.body.game.players.flatMap(player => player.playerCards).map(card => card.id)).not.to.include(newInfo.card.id);
         });
 
         it('should not be possible to play a card that is not in your hand', async () => {
             const res = await agent
             .post(`/game/${beganGame.id}/round/${beganGame.rounds[0].id}`)
-            .send({card:'testCard'});
+            .send({card:{text: 'testCard', id: 256982}});
+            expect(res.status).to.equal(400);
+        });
+
+        it('should not be possible to play a card mismatching ID and TEXT from his hand', async () => {
+            const res = await agent
+            .post(`/game/${beganGame.id}/round/${beganGame.rounds[0].id}`)
+            .send({card:{text: 'id2', id: 0}});
             expect(res.status).to.equal(400);
         });
 
         it('only a player of the game can play a card', async () => {
             const res = await chai.request(app)
             .post(`/game/${beganGame.id}/round/${beganGame.rounds[0].id}`)
-            .send({card:'id2'});
+            .send({card:{text: 'id2', id: 1}});
             expect(res.status).to.equal(400);
         });
 
         it('is only possible to play one card per round', async () => {
             const res = await agent
             .post(`/game/${startedGame.id}/round/${startedGame.rounds[0].id}`)
-            .send({card:'id2'});
+            .send({card:{text: 'id2', id: 1}});
             expect(res.status).to.equal(400);
         });
         it('should not be possible to play a card in a finished round', async () => {
             const res = await agent
             .post(`/game/${gameWith2Rounds.id}/round/${gameWith2Rounds.rounds[0].id}`)
-            .send({card:'id2'});
+            .send({card:{text: 'id2', id: 1}});
             expect(res.status).to.equal(400);
         });
         it('should not be possible to play a card in a non-exisiting round', async () => {
             const res = await agent
             .post(`/game/${startedGame.id}/round/fakeID`)
-            .send({card:'id2'});
+            .send({card:{text: 'id2', id: 1}});
             expect(res.status).to.equal(400);
         });
     });

@@ -97,12 +97,12 @@ describe('UPDATE a game information /game/:id', () => {
                     { 
                         userID: userId,
                         pseudo: pseudo,
-                        playerCards:['id2','id3','id4','id5']
+                        playerCards:[{text: "id2", id: 1}, {text: "id3", id: 2},{text: "id4", id: 3},{text: "id5", id: 4}]
                     },
                     { 
                         userID: 'nico',
                         pseudo: 'nico',
-                        playerCards:['id7','id8','id9','id10']
+                        playerCards:[{text: "id7", id: 6}, {text: "id8", id: 7},{text: "id9", id: 8},{text: "id10", id: 9}]
                     }
                 ],
                 rounds: [
@@ -116,7 +116,7 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: userId
                                 }],
-                                handCardId: 'id6'
+                                handCard: {id: 5, text: 'id6'}
                             },
                             {
                                 playerId: userId,
@@ -124,7 +124,7 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'cute',
                                     playerId: 'nico'
                                 }],
-                                handCardId: 'id1'
+                                handCard: {id: 0, text: 'id1'}
                             }
                         ]
                     },
@@ -184,12 +184,12 @@ describe('UPDATE a game information /game/:id', () => {
                     { 
                         userID: userId,
                         pseudo: pseudo,
-                        playerCards:['id2','id3','id4','id5']
+                        playerCards:[{text: "id2", id: 1}, {text: "id3", id: 2},{text: "id4", id: 3},{text: "id5", id: 4}]
                     },
                     { 
                         userID: 'nico',
                         pseudo: 'nikkko',
-                        playerCards:['id7','id8','id9','id10']
+                        playerCards:[{text: "id7", id: 6}, {text: "id8", id: 7},{text: "id9", id: 8},{text: "id10", id: 9}]
                     }
                 ],
                 rounds: [
@@ -203,7 +203,7 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: 'nico'
                                 }],
-                                handCardId: 'id1'
+                                handCard: {id: 0, text: 'id1'}
                             },
                             {
                                 playerId: 'nico',
@@ -211,7 +211,7 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: userId
                                 }],
-                                handCardId: 'id6'
+                                handCard: {id: 5, text: 'id6'}
                             }
                         ]
                     },
@@ -225,12 +225,12 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: 'nico'
                                 }],
-                                handCardId: 'id1'
+                                handCard: {id: 0, text: 'id1'}
                             },
                             {
                                 playerId: 'nico',
                                 votes: [],
-                                handCardId: 'id6'
+                                handCard: {id: 5, text: 'id6'}
                             }
                         ]
                     }
@@ -245,12 +245,12 @@ describe('UPDATE a game information /game/:id', () => {
                     { 
                         userID: userId,
                         pseudo: pseudo,
-                        playerCards:['id2','id3','id4','id5']
+                        playerCards:[{text: "id2", id: 1}, {text: "id3", id: 2},{text: "id4", id: 3},{text: "id5", id: 4}]
                     },
                     { 
                         userID: 'nico',
                         pseudo: 'ojononn',
-                        playerCards:['id7','id8','id9','id10']
+                        playerCards:[{text: "id7", id: 6}, {text: "id8", id: 7},{text: "id9", id: 8},{text: "id10", id: 9}]
                     }
                 ],
                 rounds: [
@@ -264,12 +264,12 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: 'nico'
                                 }],
-                                handCardId: 'id1'
+                                handCard: {id: 0, text: 'id1'}
                             },
                             {
                                 playerId: 'nico',
                                 votes: [],
-                                handCardId: 'id6'
+                                handCard: {id: 5, text: 'id6'}
                             }
                         ]
                     }
@@ -284,12 +284,12 @@ describe('UPDATE a game information /game/:id', () => {
                     { 
                         userID: userId,
                         pseudo: pseudo,
-                        playerCards:['id2','id3','id4','id5']
+                        playerCards:[{text: "id2", id: 1}, {text: "id3", id: 2},{text: "id4", id: 3},{text: "id5", id: 4}]
                     },
                     { 
                         userID: 'nico',
                         pseudo: 'niccocoo',
-                        playerCards:['id7','id8','id9','id10']
+                        playerCards:[{text: "id7", id: 6}, {text: "id8", id: 7},{text: "id9", id: 8},{text: "id10", id: 9}]
                     }
                 ],
                 rounds: [
@@ -300,7 +300,7 @@ describe('UPDATE a game information /game/:id', () => {
                             {
                                 playerId: userId,
                                 votes: [],
-                                handCardId: 'id1'
+                                handCard: {id: 0, text: 'id1'}
                             },
                             {
                                 playerId: 'nico',
@@ -308,7 +308,7 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: userId
                                 }],
-                                handCardId: 'id6'
+                                handCard: {id: 5, text: 'id6'}
                             }
                         ]
                     }
@@ -323,12 +323,12 @@ describe('UPDATE a game information /game/:id', () => {
                     { 
                         userID: userId,
                         pseudo: pseudo,
-                        playerCards:['id1','id2','id3','id4','id5']
+                        playerCards:[{text: "id1", id: 0}, {text: "id2", id: 1},{text: "id3", id: 2},{text: "id4", id: 3},{text: "id5", id: 4}]
                     },
                     { 
                         userID: 'nico',
                         pseudo: 'nicooo',
-                        playerCards:['id6','id7','id8','id9','id10']
+                        playerCards:[{text: "id6", id: 5}, {text: "id7", id: 6},{text: "id8", id: 7},{text: "id9", id: 8},{text: "id10", id: 9}]
                     }
                 ],
                 rounds: [
@@ -342,7 +342,7 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: 'nico'
                                 }],
-                                handCardId: 'id1'
+                                handCard: {id: 0, text: 'id1'}
                             },
                             {
                                 playerId: 'nico',
@@ -350,7 +350,7 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: userId
                                 }],
-                                handCardId: 'id6'
+                                handCard: {id: 5, text: 'id6'}
                             }
                         ]
                     },
@@ -364,7 +364,7 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: 'nico'
                                 }],
-                                handCardId: 'id2'
+                                handCard: {id: 1, text: 'id2'}
                             },
                             {
                                 playerId: 'nico',
@@ -372,7 +372,7 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: userId
                                 }],
-                                handCardId: 'id7'
+                                handCard: {id: 6, text: 'id7'}
                             }
                         ]
                     },
@@ -386,7 +386,7 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: 'nico'
                                 }],
-                                handCardId: 'id3'
+                                handCard: {id: 2, text: 'id3'}
                             },
                             {
                                 playerId: 'nico',
@@ -394,7 +394,7 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: userId
                                 }],
-                                handCardId: 'id8'
+                                handCard: {id: 7, text: 'id8'}
                             }
                         ]
                     }, {
@@ -407,7 +407,7 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: 'nico'
                                 }],
-                                handCardId: 'id4'
+                                handCard: {id: 3, text: 'id4'}
                             },
                             {
                                 playerId: 'nico',
@@ -415,7 +415,7 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: userId
                                 }],
-                                handCardId: 'id9'
+                                handCard: {id: 8, text: 'id9'}
                             }
                         ]
                     },
@@ -429,12 +429,12 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: 'nico'
                                 }],
-                                handCardId: 'id5'
+                                handCard: {id: 4, text: 'id5'}
                             },
                             {
                                 playerId: 'nico',
                                 votes: [],
-                                handCardId: 'id10'
+                                handCard: {id: 9, text: 'id10'}
                             }
                         ]
                     }
@@ -449,12 +449,12 @@ describe('UPDATE a game information /game/:id', () => {
                     { 
                         userID: userId,
                         pseudo: pseudo,
-                        playerCards:['id1','id2','id3','id4','id5']
+                        playerCards:[{text: "id1", id: 0}, {text: "id2", id: 1},{text: "id3", id: 2},{text: "id4", id: 3},{text: "id5", id: 4}]
                     },
                     { 
                         userID: 'nico',
                         pseudo: 'nicooo',
-                        playerCards:['id6','id7','id8','id9','id10']
+                        playerCards:[{text: "id6", id: 5}, {text: "id7", id: 6},{text: "id8", id: 7},{text: "id9", id: 8},{text: "id10", id: 9}]
                     }
                 ],
                 rounds: [
@@ -468,7 +468,7 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: 'nico'
                                 }],
-                                handCardId: 'id1'
+                                handCard: {id: 0, text: 'id1'}
                             },
                             {
                                 playerId: 'nico',
@@ -476,7 +476,7 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: userId
                                 }],
-                                handCardId: 'id6'
+                                handCard: {id: 5, text: 'id6'}
                             }
                         ]
                     },
@@ -490,7 +490,7 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: 'nico'
                                 }],
-                                handCardId: 'id2'
+                                handCard: {id: 1, text: 'id2'}
                             },
                             {
                                 playerId: 'nico',
@@ -498,7 +498,7 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: userId
                                 }],
-                                handCardId: 'id7'
+                                handCard: {id: 6, text: 'id7'}
                             }
                         ]
                     },
@@ -512,7 +512,7 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: 'nico'
                                 }],
-                                handCardId: 'id3'
+                                handCard: {id: 2, text: 'id3'}
                             },
                             {
                                 playerId: 'nico',
@@ -520,7 +520,7 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: userId
                                 }],
-                                handCardId: 'id8'
+                                handCard: {id: 7, text: 'id8'}
                             }
                         ]
                     }, {
@@ -533,7 +533,7 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: 'nico'
                                 }],
-                                handCardId: 'id4'
+                                handCard: {id: 3, text: 'id4'}
                             },
                             {
                                 playerId: 'nico',
@@ -541,7 +541,7 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: userId
                                 }],
-                                handCardId: 'id9'
+                                handCard: {id: 8, text: 'id9'}
                             }
                         ]
                     },
@@ -555,7 +555,7 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: 'nico'
                                 }],
-                                handCardId: 'id5'
+                                handCard: {id: 4, text: 'id5'}
                             },
                             {
                                 playerId: 'nico',
@@ -563,7 +563,7 @@ describe('UPDATE a game information /game/:id', () => {
                                     emotion: 'funny',
                                     playerId: userId
                                 }],
-                                handCardId: 'id10'
+                                handCard: {id: 9, text: 'id10'}
                             }
                         ]
                     }

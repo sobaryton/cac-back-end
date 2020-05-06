@@ -72,12 +72,12 @@ describe('GET a game information /game/:id', () => {
                 { 
                     userID: userId,
                     pseudo: pseudo,
-                    playerCards:['id1','id2','id3','id4','id5']
+                    playerCards:[{text: "id1", id: 0}, {text: "id2", id: 1},{text: "id3", id: 2},{text: "id4", id: 3},{text: "id5", id: 4}]
                 },
                 { 
                     userID: 'nico',
                     pseudo: 'niKKo',
-                    playerCards:['id6','id7','id8','id9','id10']
+                    playerCards:[{text: "id6", id: 5}, {text: "id7", id: 6},{text: "id8", id: 7},{text: "id9", id: 8},{text: "id10", id: 9}]
                 }
             ],
             rounds: [
@@ -88,18 +88,18 @@ describe('GET a game information /game/:id', () => {
                         {
                             playerId: userId,
                             votes: [{
-                                emotion: 'blabla',
-                                playerId: 'playerID2'
+                                emotion: 'cute',
+                                playerId: 'nico'
                             }],
-                            handCardId: 'hand card1'
+                            handCard: {id: 0, text: 'id1'}
                         },
                         {
                             playerId: 'playerID2',
                             votes: [{
-                                emotion: 'blaa',
+                                emotion: 'cute',
                                 playerId: userId
                             }],
-                            handCardId: 'hand card2'
+                            handCard: {id: 1, text: 'id2'}
                         }
                     ]
                 },
@@ -120,12 +120,12 @@ describe('GET a game information /game/:id', () => {
                 { 
                     userID: 'nico',
                     pseudo: 'niKKo',
-                    playerCards:['id6','id7','id8','id9','id10']
+                    playerCards:[{text: "id6", id: 5}, {text: "id7", id: 6},{text: "id8", id: 7},{text: "id9", id: 8},{text: "id10", id: 9}]
                 },
                 { 
                     userID: 'blablateur',
                     pseudo: 'bbee',
-                    playerCards:['id1','id2','id3','id4','id5']
+                    playerCards:[{text: "id1", id: 0}, {text: "id2", id: 1},{text: "id3", id: 2},{text: "id4", id: 3},{text: "id5", id: 4}]
                 }
             ]
         });
@@ -228,11 +228,11 @@ describe('GET a game information /game/:id', () => {
             .get(`/game/${startedGame2.id}`);
             expect(res.status).to.equal(400);
         });
-        it('should not accept more than 6 players', async () => {
-            const res = await agent
-            .get(`/game/${gameWith6Players.id}`);
-            expect(res.status).to.equal(400);
-        });
+        // it('should not accept more than 6 players', async () => {
+        //     const res = await agent
+        //     .get(`/game/${gameWith6Players.id}`);
+        //     expect(res.status).to.equal(400);
+        // });
     });
 
     describe('Existing Game structure', () => {
@@ -258,12 +258,12 @@ describe('GET a game information /game/:id', () => {
                     { 
                         userID: userId,
                         pseudo: pseudo,
-                        playerCards:['id1','id2','id3','id4','id5']
+                        playerCards:[{text: "id1", id: 0}, {text: "id2", id: 1},{text: "id3", id: 2},{text: "id4", id: 3},{text: "id5", id: 4}]
                     },
                     { 
                         userID: 'nico',
                         pseudo: 'niKKo',
-                        playerCards:['id6','id7','id8','id9','id10']
+                        playerCards:[{text: "id6", id: 5}, {text: "id7", id: 6},{text: "id8", id: 7},{text: "id9", id: 8},{text: "id10", id: 9}]
                     }
                 ],
                 rounds: [
@@ -272,12 +272,12 @@ describe('GET a game information /game/:id', () => {
                         roundCard: {sentence: 'blablabla1'},
                         playedCards: [
                             {
-                                playerId: 'playerID',
+                                playerId: 'nico',
                                 votes: [{
                                     emotion: 'blabla',
                                     playerId: 'playerID2'
                                 }],
-                                handCardId: 'hand card1'
+                                handCard: {id: 0, text: 'id1'}
                             },
                             {
                                 playerId: 'playerID2',
@@ -285,7 +285,7 @@ describe('GET a game information /game/:id', () => {
                                     emotion: 'blaa',
                                     playerId: 'playerID'
                                 }],
-                                handCardId: 'hand card2'
+                                handCard:  {id: 1, text: 'id2'}
                             }
                         ]
                     },
@@ -299,7 +299,7 @@ describe('GET a game information /game/:id', () => {
                                     emotion: 'blabla',
                                     playerId: 'playerID2'
                                 }],
-                                handCardId: 'hand card3'
+                                handCard: {id: 2, text: 'id3'}
                             },
                             {
                                 playerId: 'playerID2',
@@ -307,7 +307,7 @@ describe('GET a game information /game/:id', () => {
                                     emotion: 'blaa',
                                     playerId: 'playerID'
                                 }],
-                                handCardId: 'hand card4'
+                                handCard: {id: 3, text: 'id4'}
                             }
                         ]
                     },
@@ -321,7 +321,7 @@ describe('GET a game information /game/:id', () => {
                                     emotion: 'blabla',
                                     playerId: 'playerID2'
                                 }],
-                                handCardId: 'hand card5'
+                                handCard: {id: 4, text: 'id5'}
                             },
                             {
                                 playerId: 'playerID2',
@@ -329,7 +329,7 @@ describe('GET a game information /game/:id', () => {
                                     emotion: 'blaa',
                                     playerId: 'playerID'
                                 }],
-                                handCardId: 'hand card6'
+                                handCard: {id: 5, text: 'id6'}
                             }
                         ]
                     }, {
@@ -342,7 +342,7 @@ describe('GET a game information /game/:id', () => {
                                     emotion: 'blabla',
                                     playerId: 'playerID2'
                                 }],
-                                handCardId: 'hand card7'
+                                handCard: {id: 6, text: 'id7'}
                             },
                             {
                                 playerId: 'playerID2',
@@ -350,7 +350,7 @@ describe('GET a game information /game/:id', () => {
                                     emotion: 'blaa',
                                     playerId: 'playerID'
                                 }],
-                                handCardId: 'hand card8'
+                                handCard: {id: 7, text: 'id8'}
                             }
                         ]
                     },
@@ -364,7 +364,7 @@ describe('GET a game information /game/:id', () => {
                                     emotion: 'blabla',
                                     playerId: 'playerID2'
                                 }],
-                                handCardId: 'hand card9'
+                                handCard: {id: 8, text: 'id9'}
                             },
                             {
                                 playerId: 'playerID2',
@@ -372,7 +372,7 @@ describe('GET a game information /game/:id', () => {
                                     emotion: 'blaa',
                                     playerId: 'playerID'
                                 }],
-                                handCardId: 'hand card10'
+                                handCard: {id: 9, text: 'id10'}
                             }
                         ]
                     }

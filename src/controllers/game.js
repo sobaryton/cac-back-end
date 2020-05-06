@@ -2,6 +2,30 @@ const Game = require('../models/game');
 const HandCards = require('../data/handCards');
 const RoundCards = require('../data/roundCards');
 
+exports.createAGame = (req,res,next) => {
+    let newGame = new Game();
+
+    let creator = req.session.userID;
+    let pseudoPlayer = req.session.pseudo;
+    newGame.players.push({
+        userID: creator,
+        pseudo: pseudoPlayer,
+        playerCards: []
+    });
+    newGame.owner = creator;
+
+    newGame.save().then(
+        (game) => {
+            res.status(200).json({ message: 'New game created', game });
+        }
+    )
+    .catch(
+        (err) => {
+            res.status(400).json({ error: err });
+        }
+    )
+};
+
 exports.getAGame = (req,res,next) => {
     Game.findOne({ _id: req.params.id})
     .then(
@@ -25,9 +49,9 @@ exports.getAGame = (req,res,next) => {
             } 
 
             //If the player is the 7th player, return an error
-            if(!isPlayerInTheGame && game.players.length + 1 >= 7){
-                return res.status(400).json({error: 'Sorry, you cannot join the game, as there are maximum 6 players for a game.'})
-            }
+            // if(!isPlayerInTheGame && game.players.length + 1 >= 7){
+            //     return res.status(400).json({error: 'Sorry, you cannot join the game, as there are maximum 6 players for a game.'})
+            // }
 
             //if the game is in status waiting, add the user to the game
             if(game.status === 'in progress'){
@@ -65,29 +89,74 @@ exports.getAGame = (req,res,next) => {
     )
 };
 
-exports.createAGame = (req,res,next) => {
-    let newGame = new Game();
-
-    let creator = req.session.userID;
-    let pseudoPlayer = req.session.pseudo;
-    newGame.players.push({
-        userID: creator,
-        pseudo: pseudoPlayer,
-        playerCards: []
-    });
-    newGame.owner = creator;
-
-    newGame.save().then(
+exports.startAGame = (req,res,next) => {
+    Game.findOne({_id: req.params.id}).then(
         (game) => {
-            res.status(200).json({ message: 'New game created', game });
-        }
+            //Check if the game is waiting, otherwise you cannot start it
+            if(game.status !== 'waiting'){
+                return res.status(400).json({error: `The game ${game._id} is not in a status of waiting but is ${game.status}, therefore you cannot start it.`})
+            }
+
+            //If you do not have at least 2 players, you cannot start the game
+            if(game.players.length < 2){
+                return res.status(400).json({ error: 'Need at least two players to play a game' });
+            } 
+            //If there are more than 6 players, you cannot play
+            // if(game.players.length > 6 ){
+            //     return res.status(400).json({ error: 'There are more than 6 players in the game, you cannot play.' });
+            // }
+
+            //Check that the owner of the game can ONLY start the game
+            let playerPressingStart = req.session.userID;
+            if (playerPressingStart !== game.owner) {
+                return res.status(400).json({ error: `The player who has to start the game should be the owner of the game: ${game.owner} `});
+            }
+            
+            //add a new round
+            //change the round to in progress
+            //add a round card random
+            let bankOfRoundCards = RoundCards.RoundCards.cards;
+            let roundCardNew = bankOfRoundCards[Math.floor(Math.random()*bankOfRoundCards.length)];
+            let newRound = {
+                roundStatus: 'in progress',
+                roundCard: { sentence: roundCardNew},
+                playedCards: []
+            }
+
+            //add the cards randomly to the players
+            let numberCardTotal = (game.players.length)*5;
+            let handCardsNew = HandCards.HandCards.cards.map((text, id) => ({id, text}));
+            handCardsNew =  shuffle(handCardsNew);
+            let newPlayers = [...game.players];
+            let n = 0;
+
+            for(let i=0; i<numberCardTotal; i++){
+                if(newPlayers[n].playerCards.length === 5){
+                    n++;
+                }
+                newPlayers[n].playerCards.push(handCardsNew[i]);
+            }
+            
+            Game.findOneAndUpdate({_id: req.params.id}, { status: 'in progress', players: newPlayers, $push: {rounds: newRound} }, {new: true, useFindAndModify: false}).then(
+                (game) => {
+                    res.status(200).json({ message: 'New game began', game });
+                }
+            )
+            .catch(
+                (err) => {
+                    res.status(400).json({ error: err });
+                }
+            )
+            
+        }        
     )
     .catch(
         (err) => {
             res.status(400).json({ error: err });
         }
     )
-};
+    
+}
 
 exports.playACard = (req,res,next) => {
     //Find the game you are in
@@ -142,7 +211,7 @@ exports.playACard = (req,res,next) => {
             //this returns a new array without the card played
             let newPlayerHand = game.players
             .filter(player => player.userID === currentPlayer)[0].playerCards
-            .filter(card => card !== playedCard);
+            .filter(card => card.id !== playedCard.id);
 
             //We clone the current array players of the game
             let currentPlayerObj = [... game.players];
@@ -150,13 +219,13 @@ exports.playACard = (req,res,next) => {
             for(let i = 0; i<currentPlayerObj.length; i++){
                 if(currentPlayerObj[i].userID === currentPlayer){
 
-                    if(currentPlayerObj[i].playerCards.indexOf(playedCard) === -1){
+                    if(currentPlayerObj[i].playerCards.filter(c => c.text === playedCard.text && c.id === playedCard.id).length === 0){
                         //the card is not in the set of cards of the player, return an error
-                        return res.status(400).json({ error: `The player can\'t play the card ${playedCard}, as this is not in the set of the player ${currentPlayer}` });
+                        return res.status(400).json({ error: `The player can\'t play the card ${playedCard.text}, as this is not in the set of the player ${currentPlayer}` });
                     }
 
                     //replace in the current player card array in players with the new array of cards
-                    currentPlayerObj[i].playerCards.splice(0, currentPlayerObj[i].playerCards.length, ...newPlayerHand);
+                    currentPlayerObj[i].playerCards = currentPlayerObj[i].playerCards.filter(card => card.id !== playedCard.id)
                     break;
                 }
             }
@@ -170,7 +239,7 @@ exports.playACard = (req,res,next) => {
                 {
                     playerId: currentPlayer,
                     votes: [],
-                    handCardId: playedCard
+                    handCard: playedCard
                 };
             
             //We loop through the game rounds array and find a round that have the same id as the current round in parameters of the request
@@ -215,74 +284,7 @@ const shuffle = (arr) => {
     return arr;    
 };
 
-exports.startAGame = (req,res,next) => {
-    Game.findOne({_id: req.params.id}).then(
-        (game) => {
-            //Check if the game is waiting, otherwise you cannot start it
-            if(game.status !== 'waiting'){
-                return res.status(400).json({error: `The game ${game._id} is not in a status of waiting but is ${game.status}, therefore you cannot start it.`})
-            }
 
-            //If you do not have at least 2 players, you cannot start the game
-            if(game.players.length < 2){
-                return res.status(400).json({ error: 'Need at least two players to play a game' });
-            } 
-            //If there are more than 6 players, you cannot play
-            if(game.players.length > 6 ){
-                return res.status(400).json({ error: 'There are more than 6 players in the game, you cannot play.' });
-            }
-
-            //Check that the owner of the game can ONLY start the game
-            let playerPressingStart = req.session.userID;
-            if (playerPressingStart !== game.owner) {
-                return res.status(400).json({ error: `The player who has to start the game should be the owner of the game: ${game.owner} `});
-            }
-            
-            //add a new round
-            //change the round to in progress
-            //add a round card random
-            let bankOfRoundCards = RoundCards.RoundCards.cards;
-            let roundCardNew = bankOfRoundCards[Math.floor(Math.random()*bankOfRoundCards.length)];
-            let newRound = {
-                roundStatus: 'in progress',
-                roundCard: { sentence: roundCardNew},
-                playedCards: []
-            }
-
-            //add the cards randomly to the players
-            let numberCardTotal = (game.players.length)*5;
-            let handCardsNew = [...HandCards.HandCards.cards];
-            handCardsNew =  shuffle(handCardsNew);
-            let newPlayers = [...game.players];
-            let n = 0;
-
-            for(let i=0; i<numberCardTotal; i++){
-                if(newPlayers[n].playerCards.length === 5){
-                    n++;
-                }
-                newPlayers[n].playerCards.push(handCardsNew[i]);
-            }
-            
-            Game.findOneAndUpdate({_id: req.params.id}, { status: 'in progress', players: newPlayers, $push: {rounds: newRound} }, {new: true, useFindAndModify: false}).then(
-                (game) => {
-                    res.status(200).json({ message: 'New game began', game });
-                }
-            )
-            .catch(
-                (err) => {
-                    res.status(400).json({ error: err });
-                }
-            )
-            
-        }        
-    )
-    .catch(
-        (err) => {
-            res.status(400).json({ error: err });
-        }
-    )
-    
-}
 
 exports.voteForACard = (req,res,next) => {
 
