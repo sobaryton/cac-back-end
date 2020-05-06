@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
 module.exports = HandCardSchema = mongoose.Schema({
-    word: {type:String, required: true}
+    text: {type:String, required: true},
+    id: {type:Number, required: true}
 });

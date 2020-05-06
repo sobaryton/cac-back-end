@@ -2,6 +2,30 @@ const Game = require('../models/game');
 const HandCards = require('../data/handCards');
 const RoundCards = require('../data/roundCards');
 
+exports.createAGame = (req,res,next) => {
+    let newGame = new Game();
+
+    let creator = req.session.userID;
+    let pseudoPlayer = req.session.pseudo;
+    newGame.players.push({
+        userID: creator,
+        pseudo: pseudoPlayer,
+        playerCards: []
+    });
+    newGame.owner = creator;
+
+    newGame.save().then(
+        (game) => {
+            res.status(200).json({ message: 'New game created', game });
+        }
+    )
+    .catch(
+        (err) => {
+            res.status(400).json({ error: err });
+        }
+    )
+};
+
 exports.getAGame = (req,res,next) => {
     Game.findOne({ _id: req.params.id})
     .then(
@@ -25,9 +49,9 @@ exports.getAGame = (req,res,next) => {
             } 
 
             //If the player is the 7th player, return an error
-            if(!isPlayerInTheGame && game.players.length + 1 >= 7){
-                return res.status(400).json({error: 'Sorry, you cannot join the game, as there are maximum 6 players for a game.'})
-            }
+            // if(!isPlayerInTheGame && game.players.length + 1 >= 7){
+            //     return res.status(400).json({error: 'Sorry, you cannot join the game, as there are maximum 6 players for a game.'})
+            // }
 
             //if the game is in status waiting, add the user to the game
             if(game.status === 'in progress'){
@@ -63,156 +87,6 @@ exports.getAGame = (req,res,next) => {
             res.status(400).json({ error: err });
         }
     )
-};
-
-exports.createAGame = (req,res,next) => {
-    let newGame = new Game();
-
-    let creator = req.session.userID;
-    let pseudoPlayer = req.session.pseudo;
-    newGame.players.push({
-        userID: creator,
-        pseudo: pseudoPlayer,
-        playerCards: []
-    });
-    newGame.owner = creator;
-
-    newGame.save().then(
-        (game) => {
-            res.status(200).json({ message: 'New game created', game });
-        }
-    )
-    .catch(
-        (err) => {
-            res.status(400).json({ error: err });
-        }
-    )
-};
-
-exports.playACard = (req,res,next) => {
-    //Find the game you are in
-    Game.findOne({_id: req.params.id}).then(
-        (game) => {
-
-            let playedCard = req.body.card;
-            let currentPlayer = req.session.userID;
-
-            //Find the round id, you are playing
-            let currentRound = game.rounds.filter(round => round.id === req.params.roundId)[0];
-            if(currentRound === undefined){
-                return res.status(400).json({error: `The round with this ID "${req.body.roundId}" is not a valid round ID.`})
-            }
-            if(currentRound.roundStatus !== 'in progress'){
-                return res.status(400).json({error: 'The round you want to play is not in progress.'})
-            }
-
-            let currentRoundID = currentRound.id;
-
-            //We will check first if the player is a player of the game
-            let isPlayerInTheGame = false;
-            for(let i=0; i<game.players.length; i++){
-                if(game.players[i].userID === currentPlayer){
-                    isPlayerInTheGame = true;
-                    break;
-                }
-            }
-
-            if(!isPlayerInTheGame){
-                //the player is not in the players of the game, throw an error
-                return res.status(400).json({ error: `The player ${currentPlayer} can\'t play, as he is not in game ${req.params.id}` });
-            }
-
-            //Then we check the player did not play on this round before
-            let alreadyPlay = false;
-            let setCard = game.rounds[game.rounds.length-1].playedCards;
-            for(let i=0; i<setCard.length; i++){
-                if(setCard[i].playerId === currentPlayer){
-                    alreadyPlay = true;
-                    break;
-                }
-            }
-
-            if(alreadyPlay){
-                //the player already played a card - we return an error
-                return res.status(400).json({error: `The player ${currentPlayer} can\'t play, as he already played a card before for this round.`})
-            }
-
-
-            //Remove the card of the hand of the player
-            //this returns a new array without the card played
-            let newPlayerHand = game.players
-            .filter(player => player.userID === currentPlayer)[0].playerCards
-            .filter(card => card !== playedCard);
-
-            //We clone the current array players of the game
-            let currentPlayerObj = [... game.players];
-            //We loop through it and find the player with the userID that equal the userID in the request
-            for(let i = 0; i<currentPlayerObj.length; i++){
-                if(currentPlayerObj[i].userID === currentPlayer){
-
-                    if(currentPlayerObj[i].playerCards.indexOf(playedCard) === -1){
-                        //the card is not in the set of cards of the player, return an error
-                        return res.status(400).json({ error: `The player can\'t play the card ${playedCard}, as this is not in the set of the player ${currentPlayer}` });
-                    }
-
-                    //replace in the current player card array in players with the new array of cards
-                    currentPlayerObj[i].playerCards.splice(0, currentPlayerObj[i].playerCards.length, ...newPlayerHand);
-                    break;
-                }
-            }
-
-            //Add the card in the current round in the board - playedCards
-            //We clone the current game rounds array
-            let newBoard = [... game.rounds];
-            
-            //We prepare the new card that the player decided to play
-            let newCardPlayed =
-                {
-                    playerId: currentPlayer,
-                    votes: [],
-                    handCardId: playedCard
-                };
-            
-            //We loop through the game rounds array and find a round that have the same id as the current round in parameters of the request
-            for(let i = 0; i<newBoard.length; i++){
-                if(newBoard[i].id === currentRoundID){
-                    //We add the card in the board in the right round
-                    newBoard[i].playedCards.push(newCardPlayed);
-                }
-            }
-            
-            //Amend this game with a new player object and a new round object
-            Game.findOneAndUpdate({_id: req.params.id}, { players: currentPlayerObj, rounds: newBoard }, {new: true, useFindAndModify: false}).then(
-                (game) => {
-                    res.status(200).json({ message: 'Card played', game: game });
-                }
-            )
-            .catch(
-                (err) => {
-                    res.status(400).json({ error: err });
-                }
-            );
-            
-        }        
-    )
-    .catch(
-        (err) => {
-            res.status(400).json({ error: err });
-        }
-    );
-};
-
-const shuffle = (arr) => {
-    let i,
-        j,
-        temp;
-    for (i = arr.length - 1; i > 0; i--) {
-        j = Math.floor(Math.random() * (i + 1));
-        temp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = temp;
-    }
-    return arr;    
 };
 
 exports.startAGame = (req,res,next) => {
@@ -283,6 +157,135 @@ exports.startAGame = (req,res,next) => {
     )
     
 }
+
+exports.playACard = (req,res,next) => {
+    //Find the game you are in
+    Game.findOne({_id: req.params.id}).then(
+        (game) => {
+
+            let playedCard = req.body.card;
+            let currentPlayer = req.session.userID;
+
+            //Find the round id, you are playing
+            let currentRound = game.rounds.filter(round => round.id === req.params.roundId)[0];
+            if(currentRound === undefined){
+                return res.status(400).json({error: `The round with this ID "${req.body.roundId}" is not a valid round ID.`})
+            }
+            if(currentRound.roundStatus !== 'in progress'){
+                return res.status(400).json({error: 'The round you want to play is not in progress.'})
+            }
+
+            let currentRoundID = currentRound.id;
+
+            //We will check first if the player is a player of the game
+            let isPlayerInTheGame = false;
+            for(let i=0; i<game.players.length; i++){
+                if(game.players[i].userID === currentPlayer){
+                    isPlayerInTheGame = true;
+                    break;
+                }
+            }
+
+            if(!isPlayerInTheGame){
+                //the player is not in the players of the game, throw an error
+                return res.status(400).json({ error: `The player ${currentPlayer} can\'t play, as he is not in game ${req.params.id}` });
+            }
+
+            //Then we check the player did not play on this round before
+            let alreadyPlay = false;
+            let setCard = game.rounds[game.rounds.length-1].playedCards;
+            for(let i=0; i<setCard.length; i++){
+                if(setCard[i].playerId === currentPlayer){
+                    alreadyPlay = true;
+                    break;
+                }
+            }
+
+            if(alreadyPlay){
+                //the player already played a card - we return an error
+                return res.status(400).json({error: `The player ${currentPlayer} can\'t play, as he already played a card before for this round.`})
+            }
+
+
+            //Remove the card of the hand of the player
+            //this returns a new array without the card played
+            let newPlayerHand = game.players
+            .filter(player => player.userID === currentPlayer)[0].playerCards
+            .filter(card => card.id !== playedCard.id);
+
+            //We clone the current array players of the game
+            let currentPlayerObj = [... game.players];
+            //We loop through it and find the player with the userID that equal the userID in the request
+            for(let i = 0; i<currentPlayerObj.length; i++){
+                if(currentPlayerObj[i].userID === currentPlayer){
+
+                    if(currentPlayerObj[i].playerCards.filter(c => c.text === playedCard.text).length === 0){
+                        //the card is not in the set of cards of the player, return an error
+                        return res.status(400).json({ error: `The player can\'t play the card ${playedCard.text}, as this is not in the set of the player ${currentPlayer}` });
+                    }
+
+                    //replace in the current player card array in players with the new array of cards
+                    // currentPlayerObj[i].playerCards.splice(0, currentPlayerObj[i].playerCards.length, ...newPlayerHand);
+                    currentPlayerObj[i].playerCards = currentPlayerObj[i].playerCards.filter(card => card.id !== playedCard.id)
+                    break;
+                }
+            }
+
+            //Add the card in the current round in the board - playedCards
+            //We clone the current game rounds array
+            let newBoard = [... game.rounds];
+            
+            //We prepare the new card that the player decided to play
+            let newCardPlayed =
+                {
+                    playerId: currentPlayer,
+                    votes: [],
+                    handCardId: playedCard.text
+                };
+            
+            //We loop through the game rounds array and find a round that have the same id as the current round in parameters of the request
+            for(let i = 0; i<newBoard.length; i++){
+                if(newBoard[i].id === currentRoundID){
+                    //We add the card in the board in the right round
+                    newBoard[i].playedCards.push(newCardPlayed);
+                }
+            }
+            
+            //Amend this game with a new player object and a new round object
+            Game.findOneAndUpdate({_id: req.params.id}, { players: currentPlayerObj, rounds: newBoard }, {new: true, useFindAndModify: false}).then(
+                (game) => {
+                    res.status(200).json({ message: 'Card played', game: game });
+                }
+            )
+            .catch(
+                (err) => {
+                    res.status(400).json({ error: err });
+                }
+            );
+            
+        }        
+    )
+    .catch(
+        (err) => {
+            res.status(400).json({ error: err });
+        }
+    );
+};
+
+const shuffle = (arr) => {
+    let i,
+        j,
+        temp;
+    for (i = arr.length - 1; i > 0; i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+    return arr;    
+};
+
+
 
 exports.voteForACard = (req,res,next) => {
 

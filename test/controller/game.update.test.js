@@ -97,12 +97,12 @@ describe('UPDATE a game information /game/:id', () => {
                     { 
                         userID: userId,
                         pseudo: pseudo,
-                        playerCards:['id2','id3','id4','id5']
+                        playerCards:[{text: "id2", id: 1}, {text: "id3", id: 2},{text: "id4", id: 3},{text: "id5", id: 4}]
                     },
                     { 
                         userID: 'nico',
                         pseudo: 'nico',
-                        playerCards:['id7','id8','id9','id10']
+                        playerCards:[{text: "id7", id: 6}, {text: "id8", id: 7},{text: "id9", id: 8},{text: "id10", id: 9}]
                     }
                 ],
                 rounds: [
@@ -184,12 +184,12 @@ describe('UPDATE a game information /game/:id', () => {
                     { 
                         userID: userId,
                         pseudo: pseudo,
-                        playerCards:['id2','id3','id4','id5']
+                        playerCards:[{text: "id2", id: 1}, {text: "id3", id: 2},{text: "id4", id: 3},{text: "id5", id: 4}]
                     },
                     { 
                         userID: 'nico',
                         pseudo: 'nikkko',
-                        playerCards:['id7','id8','id9','id10']
+                        playerCards:[{text: "id7", id: 6}, {text: "id8", id: 7},{text: "id9", id: 8},{text: "id10", id: 9}]
                     }
                 ],
                 rounds: [
@@ -245,12 +245,12 @@ describe('UPDATE a game information /game/:id', () => {
                     { 
                         userID: userId,
                         pseudo: pseudo,
-                        playerCards:['id2','id3','id4','id5']
+                        playerCards:[{text: "id2", id: 1}, {text: "id3", id: 2},{text: "id4", id: 3},{text: "id5", id: 4}]
                     },
                     { 
                         userID: 'nico',
                         pseudo: 'ojononn',
-                        playerCards:['id7','id8','id9','id10']
+                        playerCards:[{text: "id7", id: 6}, {text: "id8", id: 7},{text: "id9", id: 8},{text: "id10", id: 9}]
                     }
                 ],
                 rounds: [
@@ -284,12 +284,12 @@ describe('UPDATE a game information /game/:id', () => {
                     { 
                         userID: userId,
                         pseudo: pseudo,
-                        playerCards:['id2','id3','id4','id5']
+                        playerCards:[{text: "id2", id: 1}, {text: "id3", id: 2},{text: "id4", id: 3},{text: "id5", id: 4}]
                     },
                     { 
                         userID: 'nico',
                         pseudo: 'niccocoo',
-                        playerCards:['id7','id8','id9','id10']
+                        playerCards:[{text: "id7", id: 6}, {text: "id8", id: 7},{text: "id9", id: 8},{text: "id10", id: 9}]
                     }
                 ],
                 rounds: [
@@ -323,12 +323,12 @@ describe('UPDATE a game information /game/:id', () => {
                     { 
                         userID: userId,
                         pseudo: pseudo,
-                        playerCards:['id1','id2','id3','id4','id5']
+                        playerCards:[{text: "id1", id: 0}, {text: "id2", id: 1},{text: "id3", id: 2},{text: "id4", id: 3},{text: "id5", id: 4}]
                     },
                     { 
                         userID: 'nico',
                         pseudo: 'nicooo',
-                        playerCards:['id6','id7','id8','id9','id10']
+                        playerCards:[{text: "id6", id: 5}, {text: "id7", id: 6},{text: "id8", id: 7},{text: "id9", id: 8},{text: "id10", id: 9}]
                     }
                 ],
                 rounds: [
@@ -449,12 +449,12 @@ describe('UPDATE a game information /game/:id', () => {
                     { 
                         userID: userId,
                         pseudo: pseudo,
-                        playerCards:['id1','id2','id3','id4','id5']
+                        playerCards:[{text: "id1", id: 0}, {text: "id2", id: 1},{text: "id3", id: 2},{text: "id4", id: 3},{text: "id5", id: 4}]
                     },
                     { 
                         userID: 'nico',
                         pseudo: 'nicooo',
-                        playerCards:['id6','id7','id8','id9','id10']
+                        playerCards:[{text: "id6", id: 5}, {text: "id7", id: 6},{text: "id8", id: 7},{text: "id9", id: 8},{text: "id10", id: 9}]
                     }
                 ],
                 rounds: [
