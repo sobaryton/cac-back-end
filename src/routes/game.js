@@ -1,12 +1,19 @@
 const express = require('express');
-const router = express.Router();
 
-const gameCtrl = require('../controllers/game');
+const router = new express.Router();
 
-router.get('/:id', gameCtrl.getAGame);
-router.post('/', gameCtrl.createAGame);
-router.post('/:id/round/:roundId', gameCtrl.playACard);
-router.put('/:id', gameCtrl.startAGame);
-router.put('/:id/round/:roundId/playedCards/:playedCardId', gameCtrl.voteForACard);
+const {
+  getAGame,
+  createAGame,
+  playACard,
+  startAGame,
+  voteForACard,
+} = require('../controllers/game');
+
+router.get('/:id', getAGame);
+router.post('/', createAGame);
+router.post('/:id/round/:roundId', playACard);
+router.put('/:id', startAGame);
+router.put('/:id/round/:roundId/playedCards/:playedCardId', voteForACard);
 
 module.exports = router;

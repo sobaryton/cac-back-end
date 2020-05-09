@@ -10,14 +10,15 @@ describe('logout', () => {
 
   beforeEach(async () => {
     agent = chai.request.agent(app);
-    const res = await agent
-    .get(`/user`);
+    // Log in.
+    await agent.get(`/user`);
   });
 
   it('should destroy the cookie', async () => {
     const res = await agent
-    .delete('/user');
+      .delete('/user');
     expect(res.status).to.equal(200);
-    expect(res.headers['set-cookie'][0]).to.equal("CACoro=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT");
+    expect(res.headers['set-cookie'][0])
+      .to.equal('CACoro=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT');
   });
-})
+});
