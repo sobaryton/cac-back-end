@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 const VoteSchema = require('./vote');
 const HandCardSchema = require('./handCard');
 
-module.exports = PlayedCardSchema = mongoose.Schema({
-    playerId: {type:String, required: true},
-    votes: {type:[VoteSchema], required: true},
-    handCard: {type:HandCardSchema, required: true}
+module.exports = PlayedCardSchema = new mongoose.Schema({
+  playerId: {type: String, required: true},
+  votes: {type: [VoteSchema], required: true},
+  handCard: {type: HandCardSchema, required: true},
 });

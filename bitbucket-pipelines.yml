@@ -12,12 +12,23 @@ test: &test
       - npm install
       - npm test
 
+lint: &lint
+  step:
+    name: Lint
+    caches:
+      - node
+    script:
+      - npm install
+      - npm run lint
+
 pipelines:
   default:
+    - <<: *lint
     - <<: *test
 
   branches:
     master:
+      - <<: *lint
       - <<: *test
       - step:
           name: Deploy to production

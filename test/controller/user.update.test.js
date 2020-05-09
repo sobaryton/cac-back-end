@@ -10,27 +10,27 @@ describe('change pseudo', () => {
 
   beforeEach(async () => {
     agent = chai.request.agent(app);
-    const res = await agent
-    .get(`/user`);
+    // Log in.
+    await agent.get(`/user`);
   });
 
   it('should change the pseudo if called', async () => {
     const newP = {pseudo: 'MyNewPseudo'};
     const res = await agent
-    .put('/user')
-    .send(newP);
+      .put('/user')
+      .send(newP);
     expect(res.status).to.equal(200);
 
     const res2 = await agent
-    .get('/user');
+      .get('/user');
     expect(res2.body.pseudo).to.equal(newP.pseudo);
   });
-  it('should not update the pseudo if it is more than 20 characters', async () => {
+  it('should not update the pseudo if more than 20 characters', async () => {
     const newP = {pseudo: 'I am a very very very long new pseudo'};
     const res = await agent
-    .put('/user')
-    .send(newP);
-    
+      .put('/user')
+      .send(newP);
+
     expect(res.status).to.equal(400);
   });
 });
