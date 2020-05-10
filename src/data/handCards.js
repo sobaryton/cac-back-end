@@ -247,6 +247,7 @@ const handCards = {
     'think it\'s just a flu',
     'claim it was engineered by the Chinese',
     'say the outbreak is fake news',
+    'learn my kids\' names',
   ],
 };
 
