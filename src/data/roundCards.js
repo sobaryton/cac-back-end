@@ -73,6 +73,9 @@ const roundCards = {
     'Learning __ finally proved useful',
     'With a little bit of imagination and __ I can create a vaccine',
     'I will __ to help my sick neighbour',
+    'I feel so alone I\'d __',
+    'Can\'t wait for the next outbreak, I\'m packed with __',
+    'I feel stupid I __',
   ],
 };
 

@@ -245,8 +245,8 @@ const handCards = {
     'share bad medical advice on Facebook',
     'believe i\'m a doctor',
     'think it\'s just a flu',
-    'was engineered by the Chinese',
-    'is fake news',
+    'claim it was engineered by the Chinese',
+    'say the outbreak is fake news',
   ],
 };
 
