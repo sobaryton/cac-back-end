@@ -245,6 +245,8 @@ describe('GET a game information /game/:id', () => {
 
   describe('Get back a begun game', () => {
     let finishedGame;
+    let startedGameNotJoined;
+    let finishedGameNotJoined;
     beforeEach( async () => {
       finishedGame = new Game({
         status: 'finished',
@@ -386,6 +388,207 @@ describe('GET a game information /game/:id', () => {
         ],
       });
       await finishedGame.save();
+
+      finishedGameNotJoined = new Game({
+        status: 'finished',
+        owner: 'nico',
+        players: [
+          {
+            userID: 'soso',
+            pseudo: 'SoSo',
+            playerCards: [
+              {text: 'id1', id: 0},
+              {text: 'id2', id: 1},
+              {text: 'id3', id: 2},
+              {text: 'id4', id: 3},
+              {text: 'id5', id: 4},
+            ],
+          },
+          {
+            userID: 'nico',
+            pseudo: 'niKKo',
+            playerCards: [
+              {text: 'id6', id: 5},
+              {text: 'id7', id: 6},
+              {text: 'id8', id: 7},
+              {text: 'id9', id: 8},
+              {text: 'id10', id: 9},
+            ],
+          },
+        ],
+        rounds: [
+          {
+            roundStatus: 'finished',
+            roundCard: {sentence: 'blablabla1'},
+            playedCards: [
+              {
+                playerId: 'nico',
+                votes: [{
+                  emotion: 'blabla',
+                  playerId: 'playerID2',
+                }],
+                handCard: {id: 0, text: 'id1'},
+              },
+              {
+                playerId: 'playerID2',
+                votes: [{
+                  emotion: 'blaa',
+                  playerId: 'playerID',
+                }],
+                handCard: {id: 1, text: 'id2'},
+              },
+            ],
+          },
+          {
+            roundStatus: 'finished',
+            roundCard: {sentence: 'blablabla2'},
+            playedCards: [
+              {
+                playerId: 'playerID',
+                votes: [{
+                  emotion: 'blabla',
+                  playerId: 'playerID2',
+                }],
+                handCard: {id: 2, text: 'id3'},
+              },
+              {
+                playerId: 'playerID2',
+                votes: [{
+                  emotion: 'blaa',
+                  playerId: 'playerID',
+                }],
+                handCard: {id: 3, text: 'id4'},
+              },
+            ],
+          },
+          {
+            roundStatus: 'finished',
+            roundCard: {sentence: 'blablabla3'},
+            playedCards: [
+              {
+                playerId: 'playerID',
+                votes: [{
+                  emotion: 'blabla',
+                  playerId: 'playerID2',
+                }],
+                handCard: {id: 4, text: 'id5'},
+              },
+              {
+                playerId: 'playerID2',
+                votes: [{
+                  emotion: 'blaa',
+                  playerId: 'playerID',
+                }],
+                handCard: {id: 5, text: 'id6'},
+              },
+            ],
+          }, {
+            roundStatus: 'finished',
+            roundCard: {sentence: 'blablabla4'},
+            playedCards: [
+              {
+                playerId: 'playerID',
+                votes: [{
+                  emotion: 'blabla',
+                  playerId: 'playerID2',
+                }],
+                handCard: {id: 6, text: 'id7'},
+              },
+              {
+                playerId: 'playerID2',
+                votes: [{
+                  emotion: 'blaa',
+                  playerId: 'playerID',
+                }],
+                handCard: {id: 7, text: 'id8'},
+              },
+            ],
+          },
+          {
+            roundStatus: 'finished',
+            roundCard: {sentence: 'blablabla5'},
+            playedCards: [
+              {
+                playerId: 'playerID',
+                votes: [{
+                  emotion: 'blabla',
+                  playerId: 'playerID2',
+                }],
+                handCard: {id: 8, text: 'id9'},
+              },
+              {
+                playerId: 'playerID2',
+                votes: [{
+                  emotion: 'blaa',
+                  playerId: 'playerID',
+                }],
+                handCard: {id: 9, text: 'id10'},
+              },
+            ],
+          },
+        ],
+      });
+      await finishedGameNotJoined.save();
+
+      const startedGameNotJoinedSchema = {
+        status: 'in progress',
+        owner: userId,
+        players: [
+          {
+            userID: 'soso',
+            pseudo: 'SoSo',
+            playerCards: [
+              {text: 'id1', id: 0},
+              {text: 'id2', id: 1},
+              {text: 'id3', id: 2},
+              {text: 'id4', id: 3},
+              {text: 'id5', id: 4},
+            ],
+          },
+          {
+            userID: 'nico',
+            pseudo: 'niKKo',
+            playerCards: [
+              {text: 'id6', id: 5},
+              {text: 'id7', id: 6},
+              {text: 'id8', id: 7},
+              {text: 'id9', id: 8},
+              {text: 'id10', id: 9},
+            ],
+          },
+        ],
+        rounds: [
+          {
+            roundStatus: 'finished',
+            roundCard: {sentence: 'blablabla'},
+            playedCards: [
+              {
+                playerId: 'soso',
+                votes: [{
+                  emotion: 'cute',
+                  playerId: 'nico',
+                }],
+                handCard: {id: 0, text: 'id1'},
+              },
+              {
+                playerId: 'playerID2',
+                votes: [{
+                  emotion: 'cute',
+                  playerId: userId,
+                }],
+                handCard: {id: 1, text: 'id2'},
+              },
+            ],
+          },
+          {
+            roundStatus: 'in progress',
+            roundCard: {sentence: 'round card 2'},
+            playedCards: [],
+          },
+        ],
+      };
+      startedGameNotJoined = new Game(startedGameNotJoinedSchema);
+      await startedGameNotJoined.save();
     });
 
     it('should have a round card', async () => {
@@ -428,6 +631,16 @@ describe('GET a game information /game/:id', () => {
       res.body.game.rounds.forEach( async (round) => {
         expect(round.roundStatus).to.equal('finished');
       });
+    });
+    it('cannot fetch a started game which the user did no join', async () => {
+      const res = await agent
+        .get(`/game/${startedGameNotJoined.id}`);
+      expect(res.status).to.equal(400);
+    });
+    it('can fetch a finished game which the user did no join', async () => {
+      const res = await agent
+        .get(`/game/${finishedGameNotJoined.id}`);
+      expect(res.status).to.equal(200);
     });
   });
 });

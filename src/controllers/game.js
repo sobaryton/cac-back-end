@@ -34,22 +34,22 @@ exports.getAGame = (req, res, next) => {
         // and player was not in the game
         const isPlayerInTheGame = game.players.filter((player) =>
           player.userID === req.session.userID
-        );
+        ).length > 0;
 
         if (!isPlayerInTheGame && game.status === 'in progress') {
           return res.status(400).json({
-            error: 'The game has already started, you cannot join it',
+            error: 'The game has already started without you, '
+              + 'you cannot access it',
           });
         }
 
-        if (!isPlayerInTheGame && game.status === 'finished') {
-          return res.status(400).json({
-            error: 'The game is already finished, you cannot join it',
-          });
+        // Allow to get the same.
+        if (game.status === 'finished') {
+          return res.status(200).json({game});
         }
 
         // Just return the game
-        return res.status(200).json({game: game});
+        return res.status(200).json({game});
       }
     )
     .catch(
@@ -97,9 +97,8 @@ exports.joinAGame = (req, res, next) => {
             error: 'The game has already started, you cannot join it',
           });
         } else if (game.status === 'finished') {
-          return res.status(200).json({
+          return res.status(400).json({
             error: 'The game is already finished, you cannot join it',
-            game: game,
           });
         } else if (game.status === 'waiting') {
           const newPlayer = {
@@ -121,12 +120,11 @@ exports.joinAGame = (req, res, next) => {
                 game: game2,
               });
             }
-          )
-            .catch(
-              (err) => {
-                res.status(400).json({error: err});
-              }
-            );
+          ).catch(
+            (err) => {
+              res.status(400).json({error: err});
+            }
+          );
         } else {
           return res.status(400).json({
             error: 'The game is already finished or started,'
