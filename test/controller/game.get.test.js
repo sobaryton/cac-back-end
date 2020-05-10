@@ -230,36 +230,6 @@ describe('GET a game information /game/:id', () => {
     });
   });
 
-  describe('Join an existing game', () => {
-    it('has a list of participants, containing the current user', async () => {
-      const res = await agent
-        .get(`/game/${game.id}`);
-      const player
-        = res.body.game.players.filter((p) => p.userID === userId )[0];
-      expect(player.userID).to.equal(userId);
-    });
-    it('should add the new player in the game', async () => {
-      const res = await agent
-        .get(`/game/${waitingGameStart.id}`);
-
-      const player
-        = res.body.game.players.filter((p) => p.userID === userId )[0];
-      expect(player.userID).to.equal(userId);
-      expect(player.pseudo).to.equal(pseudo);
-    });
-    // eslint-disable-next-line max-len
-    it('should not be possible to join if the game already began, or is finished', async () => {
-      const res = await agent
-        .get(`/game/${startedGame2.id}`);
-      expect(res.status).to.equal(400);
-    });
-    // it('should not accept more than 6 players', async () => {
-    //     const res = await agent
-    //     .get(`/game/${gameWith6Players.id}`);
-    //     expect(res.status).to.equal(400);
-    // });
-  });
-
   describe('Existing Game structure', () => {
     it('is an object with the same structure as started game', async () => {
       const res = await agent
