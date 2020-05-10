@@ -248,6 +248,11 @@ const handCards = {
     'claim it was engineered by the Chinese',
     'say the outbreak is fake news',
     'learn my kids\' names',
+    'being furloughed after buying my new house',
+    'quiting my job before the outbreak',
+    'put all my savings in my last holiday',
+    'put all my money in my cancelled trip',
+    'buy lots of sexy underwears',
   ],
 };
 

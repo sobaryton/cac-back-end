@@ -95,6 +95,11 @@ const roundCards = {
     'My cleaner stopped coming, I have to __',
     'I don\'t think anyone will notice I __',
     'I\'d __, but my pet won\'t stop watching me',
+    'Since I __, I have no money left',
+    'Being furloughed forced me to __',
+    'I can\'t __ with my kids all day',
+    'Looking back, __ was not such a good idea',
+    'How did I not __ ever before?',
   ],
 };
 
