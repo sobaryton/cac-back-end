@@ -70,7 +70,7 @@ const roundCards = {
     'You __ too much and now we have to go to the urgencies!',
     'I __, to remember good times',
     'I __, to remember better times',
-    'Learning __ finally proved useful',
+    'Learning to __ finally proved useful',
     'With a little bit of imagination and __ I can create a vaccine',
     'I will __ to help my sick neighbour',
     'I feel so alone I\'d __',

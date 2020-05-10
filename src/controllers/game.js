@@ -482,16 +482,14 @@ exports.voteForACard = (req, res, next) => {
           chooseRandomRoundCard = (bankCardArray) =>
             bankCardArray[Math.floor(Math.random() * bankCardArray.length)];
 
-          // check we did not have it before
-          // add a round card random
-          const bankOfRoundCards = RoundCards.RoundCards.cards;
           // filter all the cards already chosen in the last rounds
           const tabRoundCards = [];
           for (let i = 0; i < newBoard.length; i++) {
             tabRoundCards.push(newBoard[i].roundCard.sentence);
           }
 
-          bankOfRoundCards.filter((card) => tabRoundCards.indexOf(card) === -1);
+          const bankOfRoundCards = RoundCards.RoundCards.cards
+            .filter((card) => tabRoundCards.indexOf(card) === -1);
           const roundCardNew = chooseRandomRoundCard(bankOfRoundCards);
 
           const newRound = {
