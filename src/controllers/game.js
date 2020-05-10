@@ -30,6 +30,39 @@ exports.getAGame = (req, res, next) => {
   Game.findOne({_id: req.params.id})
     .then(
       (game) => {
+        // Block if already already begun or finished
+        // and player was not in the game
+        const isPlayerInTheGame = game.players.filter((player) =>
+          player.userID === req.session.userID
+        );
+
+        if (!isPlayerInTheGame && game.status === 'in progress') {
+          return res.status(400).json({
+            error: 'The game has already started, you cannot join it',
+          });
+        }
+
+        if (!isPlayerInTheGame && game.status === 'finished') {
+          return res.status(400).json({
+            error: 'The game is already finished, you cannot join it',
+          });
+        }
+
+        // Just return the game
+        return res.status(200).json({game: game});
+      }
+    )
+    .catch(
+      (err) => {
+        res.status(400).json({error: err});
+      }
+    );
+};
+
+exports.joinAGame = (req, res, next) => {
+  Game.findOne({_id: req.params.id})
+    .then(
+      (game) => {
         // Join the game - block if already already begun or finished
         // Add the user that join if status is waiting
         const user = req.session.userID;
@@ -43,9 +76,11 @@ exports.getAGame = (req, res, next) => {
           }
         }
 
-        // If player already in the game, return the game
+        // If player already in the game, return an error
         if (isPlayerInTheGame) {
-          return res.status(200).json({game: game});
+          return res.status(400).json({
+            error: 'The player has already joined the game',
+          });
         }
 
         // If the player is the 7th player, return an error

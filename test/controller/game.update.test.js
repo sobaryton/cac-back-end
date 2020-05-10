@@ -749,3 +749,97 @@ describe('UPDATE a game information /game/:id', () => {
     });
   });
 });
+
+describe('UPDATE a game information /game/:id/players', () => {
+  let agent;
+  let userId;
+  let pseudo;
+  let game;
+  let waitingGameStart;
+  let startedGame2;
+  beforeEach(async () => {
+    agent = chai.request.agent(app);
+    const res = await agent
+      .get(`/user`);
+    userId = res.body.userId;
+    pseudo = res.body.pseudo;
+
+    game = new Game({
+      owner: userId,
+    });
+    await game.save();
+
+    waitingGameStart = new Game({
+      status: 'waiting',
+      owner: 'nico',
+      players: [
+        {
+          userID: 'nico',
+          pseudo: 'niKKo',
+          playerCards: [],
+        },
+      ],
+    });
+    await waitingGameStart.save();
+
+    startedGame2 = new Game({
+      status: 'in progress',
+      owner: 'nico',
+      players: [
+        {
+          userID: 'nico',
+          pseudo: 'niKKo',
+          playerCards: [
+            {text: 'id6', id: 5},
+            {text: 'id7', id: 6},
+            {text: 'id8', id: 7},
+            {text: 'id9', id: 8},
+            {text: 'id10', id: 9},
+          ],
+        },
+        {
+          userID: 'blablateur',
+          pseudo: 'bbee',
+          playerCards: [
+            {text: 'id1', id: 0},
+            {text: 'id2', id: 1},
+            {text: 'id3', id: 2},
+            {text: 'id4', id: 3},
+            {text: 'id5', id: 4},
+          ],
+        },
+      ],
+    });
+    await startedGame2.save();
+  });
+
+  describe('Join an existing game', () => {
+    it('has a list of participants, containing the current user', async () => {
+      const res = await agent
+        .put(`/game/${game.id}/players`);
+      const player
+        = res.body.game.players.filter((p) => p.userID === userId )[0];
+      expect(player.userID).to.equal(userId);
+    });
+    it('should add the new player in the game', async () => {
+      const res = await agent
+        .put(`/game/${waitingGameStart.id}/players`);
+
+      const player
+        = res.body.game.players.filter((p) => p.userID === userId )[0];
+      expect(player.userID).to.equal(userId);
+      expect(player.pseudo).to.equal(pseudo);
+    });
+    // eslint-disable-next-line max-len
+    it('should not be possible to join if the game already began, or is finished', async () => {
+      const res = await agent
+        .put(`/game/${startedGame2.id}/players`);
+      expect(res.status).to.equal(400);
+    });
+    // it('should not accept more than 6 players', async () => {
+    //     const res = await agent
+    //     .get(`/game/${gameWith6Players.id}`);
+    //     expect(res.status).to.equal(400);
+    // });
+  });
+});
