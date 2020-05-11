@@ -312,7 +312,7 @@ const handCards = {
     'say the outbreak is fake news',
     'learn my kids\' names',
     'be furloughed after buying my new house',
-    'quite my job before the outbreak',
+    'quit my job before the outbreak',
     'put all my savings in my last holiday',
     'put all my money in my future trip',
     'buy sexy underwears',
