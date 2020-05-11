@@ -83,7 +83,7 @@ const roundCards = {
     'Now I __, I feel like a real adult',
     '__ gave me the strength to survive',
     'Can\'t stop thinking about my __',
-    'I thank our president because I could __',
+    'I thank our president about __',
     'I finally have time to __',
     'My boss should __ to save people',
     'I __ every day to thank key workers',

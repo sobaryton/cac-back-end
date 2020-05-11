@@ -278,7 +278,7 @@ const handCards = {
     'cancel my holiday',
     'kill my pet',
     'bath kids in hand sanitizer',
-    'infect my buddy',
+    'infect my ex',
     'infect my colleagues',
     'watch my neighbours suffocate',
     'concentrate on what really matters',
