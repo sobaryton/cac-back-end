@@ -110,7 +110,7 @@ const roundCards = {
     'I __ to kill the time',
     'I __ to escape reality',
     'I __ to help the community',
-    'My mother like to __ to help our neighborhood'
+    'My mother like to __ to help our neighbourhood'
   ],
 };
 
