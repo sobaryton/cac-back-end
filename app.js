@@ -8,6 +8,8 @@ const gameRoutes = require('./src/routes/game');
 const userRoutes = require('./src/routes/user');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const passport = require('passport');
+const bearerPassport = require('./src/middleware/auth');
 
 dotenv.config();
 
@@ -44,6 +46,9 @@ app.use(session({
   },
 }));
 
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(bodyParser.json());
 
 // Allow any website to call this API.
@@ -52,8 +57,8 @@ app.use(cors({
   origin: (origin, callback) => callback(null, true),
 }));
 
-app.use('/user', userSession, userRoutes);
+app.use('/user', userSession, bearerPassport, userRoutes);
 
-app.use('/game', userSession, gameRoutes);
+app.use('/game', userSession, bearerPassport, gameRoutes);
 
 module.exports = app;

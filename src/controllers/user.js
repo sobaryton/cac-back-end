@@ -1,16 +1,17 @@
 exports.getUserId = (req, res, next) => {
   res.status(200).json({
-    userId: req.session.userID,
-    pseudo: req.session.pseudo,
+    userId: req.user.userID,
+    pseudo: req.user.pseudo,
+    token: req.user.token,
   });
 };
 
 exports.updatePseudo = (req, res, next) => {
   const newP = req.body.pseudo;
   if (newP.length < 20) {
-    req.session.pseudo = newP;
+    req.user.pseudo = newP;
     res.status(200).json({
-      userId: req.session.userID,
+      userId: req.user.userID,
       pseudo: newP,
     });
   } else {
@@ -20,6 +21,7 @@ exports.updatePseudo = (req, res, next) => {
   }
 };
 
+// TODO: Delme.
 exports.logout = (req, res, next) => {
   req.session.destroy( () => {
     // cannot access session here
