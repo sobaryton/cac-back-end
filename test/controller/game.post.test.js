@@ -3,6 +3,7 @@ const chaiHttp = require('chai-http');
 const app = require('../../app');
 const expect = chai.expect;
 const Game = require('../../src/models/game');
+const User = require('../../src/models/user');
 const mongoose = require('mongoose');
 const chaiSubset = require('chai-subset');
 
@@ -34,15 +35,30 @@ describe('POST a game information /game/:id', () => {
   let beganGame;
   let startedGame;
   let gameWith2Rounds;
+  let user;
+  let userNotInGame;
   let userId;
   let pseudo;
-  let agent;
   beforeEach( async () => {
-    agent = chai.request.agent(app);
-    const res = await agent
-      .get(`/user`);
-    userId = res.body.userId;
-    pseudo = res.body.pseudo;
+    await User.deleteMany({token: 'nicolito-token-84792346'});
+    await User.deleteMany({token: 'intruder-token'});
+
+    user = new User({
+      pseudo: 'Nicolito Gogolito',
+      token: 'nicolito-token-84792346',
+    });
+
+    await user.save();
+
+    userId = user._id.toString();
+    pseudo = user.pseudo;
+
+    userNotInGame = new User({
+      pseudo: 'Intruder',
+      token: 'intruder-token',
+    });
+
+    await userNotInGame.save();
 
     beganGame = new Game({
       status: 'in progress',
@@ -191,17 +207,24 @@ describe('POST a game information /game/:id', () => {
     await gameWith2Rounds.save();
   });
 
+  afterEach(async () => {
+    await User.deleteMany({token: 'nicolito-token-84792346'});
+    await User.deleteMany({token: 'intruder-token'});
+  });
+
   describe('Create a new game', () => {
     it('should return successful status 200', async () => {
       const res = await chai.request(app)
-        .post('/game');
+        .post('/game')
+        .set('Authorization', `Bearer ${user.token}`);
       expect(res.status).to.equal(200);
     });
 
     // eslint-disable-next-line max-len
     it('should POST an object game with properties status = waiting, rounds and players', async () => {
       const res = await chai.request(app)
-        .post('/game');
+        .post('/game')
+        .set('Authorization', `Bearer ${user.token}`);
       expect(res.body.game).to.be.an('object');
       expect(res.body.game).to.have.property('status');
       expect(res.body.game.status).to.equal('waiting');
@@ -211,15 +234,18 @@ describe('POST a game information /game/:id', () => {
 
     it('should return a different id when called multiple times', async () => {
       const res1 = await chai.request(app)
-        .post('/game');
+        .post('/game')
+        .set('Authorization', `Bearer ${user.token}`);
       const res2 = await chai.request(app)
-        .post('/game');
+        .post('/game')
+        .set('Authorization', `Bearer ${user.token}`);
       expect(res1.body.game._id).not.equal(res2.body.game._id);
     });
     // eslint-disable-next-line max-len
     it('should create a player with our userId and pseudo and the game should have an owner', async () => {
-      const res = await agent
-        .post('/game');
+      const res = await chai.request(app)
+        .post('/game')
+        .set('Authorization', `Bearer ${user.token}`);
       const player
         = res.body.game.players.filter((p) => p.userID === userId )[0];
       expect(player.userID).to.equal(userId);
@@ -228,16 +254,18 @@ describe('POST a game information /game/:id', () => {
     });
     // eslint-disable-next-line max-len
     it('should have no hand card for the creator of the game, as it will be generated when pressing start', async () => {
-      const res = await agent
-        .post('/game');
+      const res = await chai.request(app)
+        .post('/game')
+        .set('Authorization', `Bearer ${user.token}`);
       const cardsNb = res.body.game.players[0].playerCards.length;
       expect(cardsNb).to.equal(0);
     });
   });
   describe('Play a card', () => {
     it('should return successful status 200', async () => {
-      const res = await agent
+      const res = await chai.request(app)
         .post(`/game/${beganGame.id}/round/${beganGame.rounds[0].id}`)
+        .set('Authorization', `Bearer ${user.token}`)
         .send({card: {text: 'id2', id: 1}});
       expect(res.status).to.equal(200);
     });
@@ -245,8 +273,9 @@ describe('POST a game information /game/:id', () => {
     // eslint-disable-next-line max-len
     it('should remove the card from the hand and put it in the round', async () => {
       const newInfo = {card: {text: 'id2', id: 1}};
-      const res = await agent
+      const res = await chai.request(app)
         .post(`/game/${beganGame.id}/round/${beganGame.rounds[0].id}`)
+        .set('Authorization', `Bearer ${user.token}`)
         .send(newInfo);
 
       // check if the card is in the board
@@ -268,16 +297,18 @@ describe('POST a game information /game/:id', () => {
 
     // eslint-disable-next-line max-len
     it('should not be possible to play a card that is not in your hand', async () => {
-      const res = await agent
+      const res = await chai.request(app)
         .post(`/game/${beganGame.id}/round/${beganGame.rounds[0].id}`)
+        .set('Authorization', `Bearer ${user.token}`)
         .send({card: {text: 'testCard', id: 256982}});
       expect(res.status).to.equal(400);
     });
 
     // eslint-disable-next-line max-len
     it('should not be possible to play a card mismatching ID and TEXT from his hand', async () => {
-      const res = await agent
+      const res = await chai.request(app)
         .post(`/game/${beganGame.id}/round/${beganGame.rounds[0].id}`)
+        .set('Authorization', `Bearer ${user.token}`)
         .send({card: {text: 'id2', id: 0}});
       expect(res.status).to.equal(400);
     });
@@ -285,26 +316,30 @@ describe('POST a game information /game/:id', () => {
     it('only a player of the game can play a card', async () => {
       const res = await chai.request(app)
         .post(`/game/${beganGame.id}/round/${beganGame.rounds[0].id}`)
+        .set('Authorization', `Bearer ${userNotInGame.token}`)
         .send({card: {text: 'id2', id: 1}});
       expect(res.status).to.equal(400);
     });
 
     it('is only possible to play one card per round', async () => {
-      const res = await agent
+      const res = await chai.request(app)
         .post(`/game/${startedGame.id}/round/${startedGame.rounds[0].id}`)
+        .set('Authorization', `Bearer ${user.token}`)
         .send({card: {text: 'id2', id: 1}});
       expect(res.status).to.equal(400);
     });
     it('should not be possible to play in a finished round', async () => {
-      const res = await agent
+      const res = await chai.request(app)
         // eslint-disable-next-line max-len
         .post(`/game/${gameWith2Rounds.id}/round/${gameWith2Rounds.rounds[0].id}`)
+        .set('Authorization', `Bearer ${user.token}`)
         .send({card: {text: 'id2', id: 1}});
       expect(res.status).to.equal(400);
     });
     it('should not be possible to play in a non-exisiting round', async () => {
-      const res = await agent
+      const res = await chai.request(app)
         .post(`/game/${startedGame.id}/round/fakeID`)
+        .set('Authorization', `Bearer ${user.token}`)
         .send({card: {text: 'id2', id: 1}});
       expect(res.status).to.equal(400);
     });
