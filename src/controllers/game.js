@@ -5,7 +5,7 @@ const RoundCards = require('../data/roundCards');
 exports.createAGame = (req, res, next) => {
   const newGame = new Game();
 
-  const creator = req.user._id;
+  const creator = req.user._id.toString();
   const pseudoPlayer = req.user.pseudo;
   newGame.players.push({
     userID: creator,
@@ -33,7 +33,7 @@ exports.getAGame = (req, res, next) => {
         // Block if already already begun or finished
         // and player was not in the game
         const isPlayerInTheGame = game.players.filter((player) =>
-          player.userID === req.user._id
+          player.userID === req.user._id.toString()
         ).length > 0;
 
         if (!isPlayerInTheGame && game.status === 'in progress') {
@@ -65,7 +65,7 @@ exports.joinAGame = (req, res, next) => {
       (game) => {
         // Join the game - block if already already begun or finished
         // Add the user that join if status is waiting
-        const user = req.user._id;
+        const user = req.user._id.toString();
         const pseudoPlayer = req.user.pseudo;
 
         let isPlayerInTheGame = false;
@@ -167,11 +167,14 @@ exports.startAGame = (req, res, next) => {
       // }
 
       // Check that the owner of the game can ONLY start the game
-      const playerPressingStart = req.user._id;
+      const playerPressingStart = req.user._id.toString();
       if (playerPressingStart !== game.owner) {
+        const owner = game.players
+          .filter((player) => player.userID === game.owner)[0];
+
         return res.status(400).json({
           error: 'The player who has to start the game '
-            + `should be the owner of the game: ${game.owner}`,
+            + `should be the owner of the game: ${owner.pseudo}`,
         });
       }
 
@@ -230,7 +233,7 @@ exports.playACard = (req, res, next) => {
   Game.findOne({_id: req.params.id}).then(
     (game) => {
       const playedCard = req.body.card;
-      const currentPlayer = req.user._id;
+      const currentPlayer = req.user._id.toString();
 
       // Find the round id, you are playing
       const currentRound
@@ -401,7 +404,7 @@ exports.voteForACard = (req, res, next) => {
       // We register the vote for a played card
       const emotion = req.body.emotion;
       const cardChoosen = req.params.playedCardId;
-      const currentPlayer = req.user._id;
+      const currentPlayer = req.user._id.toString();
       const validateEmotions = ['scary', 'funny', 'disgusting', 'nsfw', 'cute'];
 
       // We clone the current game rounds array

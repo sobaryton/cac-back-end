@@ -47,7 +47,6 @@ app.use(session({
 }));
 
 app.use(passport.initialize());
-app.use(passport.session());
 
 app.use(bodyParser.json());
 
@@ -57,8 +56,11 @@ app.use(cors({
   origin: (origin, callback) => callback(null, true),
 }));
 
+// These routes have different authentication methods defined at
+// each endpoint level.
 app.use('/user', userSession, userRoutes);
 
+// All these routes must be authenticated with a valid token.
 app.use('/game', userSession, auth.authenticate, gameRoutes);
 
 module.exports = app;
