@@ -281,8 +281,8 @@ exports.playACard = (req, res, next) => {
       if (alreadyPlay) {
         // the player already played a card - we return an error
         return res.status(400).json({
-          error: `The player ${currentPlayer} can\'t play, `
-            + 'as he already played a card before for this round.',
+          error: `You can\'t play in this round, `
+            + 'as you already played a card before.',
         });
       }
 
