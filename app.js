@@ -9,7 +9,7 @@ const userRoutes = require('./src/routes/user');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const passport = require('passport');
-const bearerPassport = require('./src/middleware/auth');
+const auth = require('./src/middleware/auth');
 
 dotenv.config();
 
@@ -57,8 +57,8 @@ app.use(cors({
   origin: (origin, callback) => callback(null, true),
 }));
 
-app.use('/user', userSession, bearerPassport, userRoutes);
+app.use('/user', userSession, userRoutes);
 
-app.use('/game', userSession, bearerPassport, gameRoutes);
+app.use('/game', userSession, auth.authenticate, gameRoutes);
 
 module.exports = app;

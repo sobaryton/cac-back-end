@@ -57,8 +57,13 @@ passport.deserializeUser((serialisedUser, done) => {
   done(null, JSON.parse(serialisedUser));
 });
 
-const authenticate = (req, res, next) => {
-  passport.authenticate(['bearer', 'autologin'], {session: false})(req, res, next);
-};
+const authenticateWithAutologin
+  = passport.authenticate(['bearer', 'autologin'], {session: false});
 
-module.exports = authenticate;
+const authenticate
+  = passport.authenticate(['bearer'], {session: false});
+
+module.exports = {
+  authenticate,
+  authenticateWithAutologin,
+};
