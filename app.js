@@ -1,9 +1,6 @@
 const express = require('express');
-const session = require('express-session');
-const MongoStore = require('connect-mongo')(session);
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const userSession = require('./src/middleware/sessions');
 const gameRoutes = require('./src/routes/game');
 const userRoutes = require('./src/routes/user');
 const cors = require('cors');
@@ -25,27 +22,6 @@ mongoose.connect(
   console.error(error);
 });
 
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  name: 'CACoro',
-  // connect-mongo session store
-  store: new MongoStore({mongooseConnection: mongoose.connection}),
-  proxy: true,
-  resave: true,
-  saveUninitialized: true,
-  cookie: {
-    // 1 week
-    maxAge: 1000 * 60 * 60 * 24 * 7,
-    // disallows manipulating the cookie with client-side Javascript
-    httpOnly: true,
-    // TODO: when website in production, would be good to set to "strict"
-    sameSite: 'none',
-    // cookies only sent by client on HTTPS connections
-    // (disabled for testing and dev)
-    secure: 'dev' !== process.env.APP_ENV,
-  },
-}));
-
 app.use(passport.initialize());
 
 app.use(bodyParser.json());
@@ -58,9 +34,9 @@ app.use(cors({
 
 // These routes have different authentication methods defined at
 // each endpoint level.
-app.use('/user', userSession, userRoutes);
+app.use('/user', userRoutes);
 
 // All these routes must be authenticated with a valid token.
-app.use('/game', userSession, auth.authenticate, gameRoutes);
+app.use('/game', auth.authenticate, gameRoutes);
 
 module.exports = app;
