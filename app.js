@@ -26,10 +26,9 @@ app.use(passport.initialize());
 
 app.use(bodyParser.json());
 
-// Allow any website to call this API.
+// Allow only our websites to call this API.
 app.use(cors({
-  credentials: true,
-  origin: (origin, callback) => callback(null, true),
+  origin: [/^https?:\/\/localhost(:\d+)?$/, 'https://cards-against-coronavirus.sodev.me'],
 }));
 
 // These routes have different authentication methods defined at
