@@ -3,6 +3,7 @@ const chaiHttp = require('chai-http');
 const app = require('../../app');
 const expect = chai.expect;
 const Game = require('../../src/models/game');
+const User = require('../../src/models/user');
 const mongoose = require('mongoose');
 const chaiSubset = require('chai-subset');
 
@@ -34,21 +35,20 @@ describe('GET a game information /game/:id', () => {
   let game;
   let startedGame;
   let startedGameSchema;
-  let agent;
-  let pseudo;
-  let userId;
+  let user;
   let waitingGameStart;
   let startedGame2;
   let gameWith6Players;
   beforeEach(async () => {
-    agent = chai.request.agent(app);
-    const res = await agent
-      .get(`/user`);
-    userId = res.body.userId;
-    pseudo = res.body.pseudo;
+    await User.deleteMany({token: 'solenita-token-0001'});
+    user = new User({
+      pseudo: 'Solenita',
+      token: 'solenita-token-0001',
+    });
+    await user.save();
 
     game = new Game({
-      owner: userId,
+      owner: user._id.toString(),
     });
     await game.save();
 
@@ -67,11 +67,11 @@ describe('GET a game information /game/:id', () => {
 
     startedGameSchema = {
       status: 'in progress',
-      owner: userId,
+      owner: user._id.toString(),
       players: [
         {
-          userID: userId,
-          pseudo: pseudo,
+          userID: user._id.toString(),
+          pseudo: user.pseudo,
           playerCards: [
             {text: 'id1', id: 0},
             {text: 'id2', id: 1},
@@ -98,7 +98,7 @@ describe('GET a game information /game/:id', () => {
           roundCard: {sentence: 'blablabla'},
           playedCards: [
             {
-              playerId: userId,
+              playerId: user._id.toString(),
               votes: [{
                 emotion: 'cute',
                 playerId: 'nico',
@@ -109,7 +109,7 @@ describe('GET a game information /game/:id', () => {
               playerId: 'playerID2',
               votes: [{
                 emotion: 'cute',
-                playerId: userId,
+                playerId: user._id.toString(),
               }],
               handCard: {id: 1, text: 'id2'},
             },
@@ -194,37 +194,48 @@ describe('GET a game information /game/:id', () => {
     await gameWith6Players.save();
   });
 
+  afterEach(async () => {
+    await User.deleteMany({token: 'solenita-token-0001'});
+  });
+
   describe('New game object structure', () => {
     it('should return successful status 200', async () => {
-      const res = await agent
-        .get(`/game/${game.id}`);
+      const res = await chai.request(app)
+        .get(`/game/${game.id}`)
+        .set('Authorization', `Bearer ${user.token}`);
       expect(res.status).to.equal(200);
     });
     it('should be an object', async () => {
-      const res = await agent
-        .get(`/game/${game.id}`);
+      const res = await chai.request(app)
+        .get(`/game/${game.id}`)
+        .set('Authorization', `Bearer ${user.token}`);
       expect(res.body).to.be.an('object');
     });
     it('should contain the requested game id', async () => {
-      const res = await agent
-        .get(`/game/${game.id}`);
+      const res = await chai.request(app)
+        .get(`/game/${game.id}`)
+        .set('Authorization', `Bearer ${user.token}`);
       expect(res.body.game._id).to.equal(game.id);
     });
     it('should have a status of "waiting"', async () => {
-      const res = await agent
-        .get(`/game/${game.id}`);
+      const res = await chai.request(app)
+        .get(`/game/${game.id}`)
+        .set('Authorization', `Bearer ${user.token}`);
       expect(res.body.game.status).to.equal('waiting');
     });
     it('should have an empty list of rounds', async () => {
-      const res = await agent
-        .get(`/game/${game.id}`);
+      const res = await chai.request(app)
+        .get(`/game/${game.id}`)
+        .set('Authorization', `Bearer ${user.token}`);
       expect(res.body.game.rounds).to.be.an('array');
     });
     it('returns the same game when requested multiple times', async () => {
-      const res1 = await agent
-        .get(`/game/${game.id}`);
-      const res2 = await agent
-        .get(`/game/${game.id}`);
+      const res1 = await chai.request(app)
+        .get(`/game/${game.id}`)
+        .set('Authorization', `Bearer ${user.token}`);
+      const res2 = await chai.request(app)
+        .get(`/game/${game.id}`)
+        .set('Authorization', `Bearer ${user.token}`);
       expect(res1.body.game._id).to.equal(game.id);
       expect(res2.body.game._id).to.equal(game.id);
     });
@@ -232,13 +243,15 @@ describe('GET a game information /game/:id', () => {
 
   describe('Existing Game structure', () => {
     it('is an object with the same structure as started game', async () => {
-      const res = await agent
-        .get(`/game/${startedGame.id}`);
+      const res = await chai.request(app)
+        .get(`/game/${startedGame.id}`)
+        .set('Authorization', `Bearer ${user.token}`);
       expect(res.body.game).to.containSubset(startedGameSchema);
     });
     it('should contain at least two players', async () => {
-      const res = await agent
-        .get(`/game/${startedGame.id}`);
+      const res = await chai.request(app)
+        .get(`/game/${startedGame.id}`)
+        .set('Authorization', `Bearer ${user.token}`);
       expect(res.body.game.players).to.have.length.above(1);
     });
   });
@@ -253,8 +266,8 @@ describe('GET a game information /game/:id', () => {
         owner: 'nico',
         players: [
           {
-            userID: userId,
-            pseudo: pseudo,
+            userID: user._id.toString(),
+            pseudo: user.pseudo,
             playerCards: [
               {text: 'id1', id: 0},
               {text: 'id2', id: 1},
@@ -532,7 +545,7 @@ describe('GET a game information /game/:id', () => {
 
       const startedGameNotJoinedSchema = {
         status: 'in progress',
-        owner: userId,
+        owner: user._id.toString(),
         players: [
           {
             userID: 'soso',
@@ -574,7 +587,7 @@ describe('GET a game information /game/:id', () => {
                 playerId: 'playerID2',
                 votes: [{
                   emotion: 'cute',
-                  playerId: userId,
+                  playerId: user._id.toString(),
                 }],
                 handCard: {id: 1, text: 'id2'},
               },
@@ -592,15 +605,17 @@ describe('GET a game information /game/:id', () => {
     });
 
     it('should have a round card', async () => {
-      const res = await agent
-        .get(`/game/${startedGame.id}`);
+      const res = await chai.request(app)
+        .get(`/game/${startedGame.id}`)
+        .set('Authorization', `Bearer ${user.token}`);
       expect(res.body.game.rounds[res.body.game.rounds.length - 1]
         .roundCard.sentence).to.not.equal('');
     });
 
     it('should have a list per player of hand cards', async () => {
-      const res = await agent
-        .get(`/game/${startedGame.id}`);
+      const res = await chai.request(app)
+        .get(`/game/${startedGame.id}`)
+        .set('Authorization', `Bearer ${user.token}`);
 
       expect(res.body.game.players).to.be.an('array');
       res.body.game.players.forEach( async (player) => {
@@ -613,8 +628,9 @@ describe('GET a game information /game/:id', () => {
     });
     // eslint-disable-next-line max-len
     it('should have only the last round in progress if the game is in progress', async () => {
-      const res = await agent
-        .get(`/game/${startedGame.id}`);
+      const res = await chai.request(app)
+        .get(`/game/${startedGame.id}`)
+        .set('Authorization', `Bearer ${user.token}`);
 
       expect(res.body.game.status).to.equal('in progress');
       expect(res.body.game.rounds[res.body.game.rounds.length - 1]
@@ -624,8 +640,9 @@ describe('GET a game information /game/:id', () => {
       }
     });
     it('if the game is finished, all five rounds are finished', async () => {
-      const res = await agent
-        .get(`/game/${finishedGame.id}`);
+      const res = await chai.request(app)
+        .get(`/game/${finishedGame.id}`)
+        .set('Authorization', `Bearer ${user.token}`);
       expect(res.status).to.equal(200);
       expect(res.body.game.status).to.equal('finished');
       res.body.game.rounds.forEach( async (round) => {
@@ -633,13 +650,15 @@ describe('GET a game information /game/:id', () => {
       });
     });
     it('cannot fetch a started game which the user did no join', async () => {
-      const res = await agent
-        .get(`/game/${startedGameNotJoined.id}`);
+      const res = await chai.request(app)
+        .get(`/game/${startedGameNotJoined.id}`)
+        .set('Authorization', `Bearer ${user.token}`);
       expect(res.status).to.equal(400);
     });
     it('can fetch a finished game which the user did no join', async () => {
-      const res = await agent
-        .get(`/game/${finishedGameNotJoined.id}`);
+      const res = await chai.request(app)
+        .get(`/game/${finishedGameNotJoined.id}`)
+        .set('Authorization', `Bearer ${user.token}`);
       expect(res.status).to.equal(200);
     });
   });

@@ -3,6 +3,7 @@ const chaiHttp = require('chai-http');
 const app = require('../../app');
 const expect = chai.expect;
 const Game = require('../../src/models/game');
+const User = require('../../src/models/user');
 const mongoose = require('mongoose');
 const chaiSubset = require('chai-subset');
 
@@ -32,14 +33,29 @@ chai.use(chaiSubset);
 
 describe('UPDATE a game information /game/:id', () => {
   let userId;
+  let user;
+  let userNotInGame;
   let pseudo;
-  let agent;
   beforeEach( async () => {
-    agent = chai.request.agent(app);
-    const res = await agent
-      .get(`/user`);
-    userId = res.body.userId;
-    pseudo = res.body.pseudo;
+    await User.deleteMany({token: 'nounous-token-84792346'});
+    await User.deleteMany({token: 'intruder-token'});
+
+    user = new User({
+      pseudo: 'nounous',
+      token: 'nounous-token-84792346',
+    });
+
+    await user.save();
+
+    userId = user._id.toString();
+    pseudo = user.pseudo;
+
+    userNotInGame = new User({
+      pseudo: 'Intruder',
+      token: 'intruder-token',
+    });
+
+    await userNotInGame.save();
   });
 
   describe('Begin a game', () => {
@@ -150,15 +166,17 @@ describe('UPDATE a game information /game/:id', () => {
     });
 
     it('should UPDATE the game to have the status of in progress', async () => {
-      const res = await agent
-        .put(`/game/${beganGame.id}`);
+      const res = await chai.request(app)
+        .put(`/game/${beganGame.id}`)
+        .set('Authorization', `Bearer ${user.token}`);
       expect(res.status).to.equal(200);
       expect(res.body.game.status).to.equal('in progress');
     });
     // eslint-disable-next-line max-len
     it('should contain the final list of players with 5 hand cards each', async () => {
-      const res = await agent
-        .put(`/game/${beganGame.id}`);
+      const res = await chai.request(app)
+        .put(`/game/${beganGame.id}`)
+        .set('Authorization', `Bearer ${user.token}`);
       const players = res.body.game.players;
       players.forEach( (p) => {
         const cardsNb = p.playerCards.length;
@@ -167,13 +185,15 @@ describe('UPDATE a game information /game/:id', () => {
     });
     // eslint-disable-next-line max-len
     it('should not be possible for a player who is not the owner to start the game', async () => {
-      const res = await agent
-        .put(`/game/${beforeStartGame.id}`);
+      const res = await chai.request(app)
+        .put(`/game/${beforeStartGame.id}`)
+        .set('Authorization', `Bearer ${user.token}`);
       expect(res.status).to.equal(400);
     });
     it('should not be possible to start a game already started', async () => {
-      const res = await agent
-        .put(`/game/${startedGame.id}`);
+      const res = await chai.request(app)
+        .put(`/game/${startedGame.id}`)
+        .set('Authorization', `Bearer ${user.token}`);
       expect(res.status).to.equal(400);
     });
   });
@@ -638,9 +658,10 @@ describe('UPDATE a game information /game/:id', () => {
     // eslint-disable-next-line max-len
     it('should update the status of the game to finished if the last player voted during the last round and should have 5 rounds finished', async () => {
       const info = {emotion: 'funny'};
-      const res = await agent
+      const res = await chai.request(app)
         // eslint-disable-next-line max-len
         .put(`/game/${finishedGame.id}/round/${finishedGame.rounds[4].id}/playedCards/${finishedGame.rounds[4].playedCards[1].id}`)
+        .set('Authorization', `Bearer ${user.token}`)
         .send(info);
       expect(res.body.game.status).to.equal('finished');
       expect(res.body.game.rounds[res.body.game.rounds.length - 1].roundStatus)
@@ -652,9 +673,10 @@ describe('UPDATE a game information /game/:id', () => {
 
     it('should update the round with the vote', async () => {
       const info = {emotion: 'funny'};
-      const res = await agent
+      const res = await chai.request(app)
         // eslint-disable-next-line max-len
         .put(`/game/${startedGameNewRound.id}/round/${startedGameNewRound.rounds[0].id}/playedCards/${startedGameNewRound.rounds[0].playedCards[1].id}`)
+        .set('Authorization', `Bearer ${user.token}`)
         .send(info);
       const pathToVote = res.body.game.rounds[0].playedCards[1].votes;
       expect(pathToVote[pathToVote.length - 1].emotion).to.equal(info.emotion);
@@ -662,57 +684,64 @@ describe('UPDATE a game information /game/:id', () => {
     });
     it('should not be possible to vote for a random round', async () => {
       const info = {emotion: 'funny'};
-      const res = await agent
+      const res = await chai.request(app)
         // eslint-disable-next-line max-len
         .put(`/game/${startedGameNewRound.id}/round/FakeRoundID/playedCards/${startedGameNewRound.rounds[0].playedCards[1].id}`)
+        .set('Authorization', `Bearer ${user.token}`)
         .send(info);
       expect(res.status).to.equal(400);
     });
     it('should not be possible to vote for a finished round', async () => {
       const info = {emotion: 'funny'};
-      const res = await agent
+      const res = await chai.request(app)
         // eslint-disable-next-line max-len
         .put(`/game/${startedGame.id}/round/${startedGame.rounds[0].id}/playedCards/${startedGame.rounds[0].playedCards[1].id}`)
+        .set('Authorization', `Bearer ${user.token}`)
         .send(info);
       expect(res.status).to.equal(400);
     });
     it('should only be possible to pass a valid emotion', async () => {
       const info = {emotion: 'notValidEmotion'};
-      const res = await agent
+      const res = await chai.request(app)
         // eslint-disable-next-line max-len
         .put(`/game/${startedGame.id}/round/${startedGame.rounds[1].id}/playedCards/${startedGame.rounds[1].playedCards[1].id}`)
+        .set('Authorization', `Bearer ${user.token}`)
         .send(info);
       expect(res.status).to.equal(400);
     });
     it('should not be possible to vote for an non existing card', async () => {
       const info = {emotion: 'funny'};
-      const res = await agent
+      const res = await chai.request(app)
         // eslint-disable-next-line max-len
         .put(`/game/${startedGame.id}/round/${startedGame.rounds[1].id}/playedCards/fakeID`)
+        .set('Authorization', `Bearer ${user.token}`)
         .send(info);
       expect(res.status).to.equal(400);
     });
     it('should not be possible to vote more than once per round', async () => {
       const info = {emotion: 'funny'};
-      const res = await agent
+      const res = await chai.request(app)
         // eslint-disable-next-line max-len
         .put(`/game/${gameLastVote.id}/round/${gameLastVote.rounds[0].id}/playedCards/${gameLastVote.rounds[0].playedCards[1].id}`)
+        .set('Authorization', `Bearer ${user.token}`)
         .send(info);
       expect(res.status).to.equal(400);
     });
     it('should not be possible to vote for ourselves', async () => {
       const info = {emotion: 'funny'};
-      const res = await agent
+      const res = await chai.request(app)
         // eslint-disable-next-line max-len
         .put(`/game/${startedGame.id}/round/${startedGame.rounds[1].id}/playedCards/${startedGame.rounds[1].playedCards[0].id}`)
+        .set('Authorization', `Bearer ${user.token}`)
         .send(info);
       expect(res.status).to.equal(400);
     });
     it('should begin a new round when all players voted', async () => {
       const info = {emotion: 'funny'};
-      const res = await agent
+      const res = await chai.request(app)
         // eslint-disable-next-line max-len
         .put(`/game/${startedGameNewRound.id}/round/${startedGameNewRound.rounds[0].id}/playedCards/${startedGameNewRound.rounds[0].playedCards[1].id}`)
+        .set('Authorization', `Bearer ${user.token}`)
         .send(info);
       const pathToRound = res.body.game.rounds;
       expect(pathToRound[pathToRound.length - 1].roundStatus)
@@ -725,9 +754,10 @@ describe('UPDATE a game information /game/:id', () => {
     // eslint-disable-next-line max-len
     it('should have a new round card different from the previous ones when a new round is created', async () => {
       const info = {emotion: 'funny'};
-      const res = await agent
+      const res = await chai.request(app)
         // eslint-disable-next-line max-len
         .put(`/game/${startedGameNewRound.id}/round/${startedGameNewRound.rounds[0].id}/playedCards/${startedGameNewRound.rounds[0].playedCards[1].id}`)
+        .set('Authorization', `Bearer ${user.token}`)
         .send(info);
 
       const pathToRound = res.body.game.rounds;
@@ -740,9 +770,10 @@ describe('UPDATE a game information /game/:id', () => {
     });
     it('should error if we try to vote for a finished game', async () => {
       const info = {emotion: 'funny'};
-      const res = await agent
+      const res = await chai.request(app)
         // eslint-disable-next-line max-len
         .put(`/game/${gameFinishedCompleted.id}/round/${gameFinishedCompleted.rounds[0].id}/playedCards/${gameFinishedCompleted.rounds[0].playedCards[1].id}`)
+        .set('Authorization', `Bearer ${user.token}`)
         .send(info);
 
       expect(res.status).to.equal(400);
@@ -751,18 +782,34 @@ describe('UPDATE a game information /game/:id', () => {
 });
 
 describe('UPDATE a game information /game/:id/players', () => {
-  let agent;
   let userId;
+  let user;
+  let userNotInGame;
   let pseudo;
   let game;
   let waitingGameStart;
   let startedGame2;
+
   beforeEach(async () => {
-    agent = chai.request.agent(app);
-    const res = await agent
-      .get(`/user`);
-    userId = res.body.userId;
-    pseudo = res.body.pseudo;
+    await User.deleteMany({token: 'nounous-token-84792346'});
+    await User.deleteMany({token: 'intruder-token'});
+
+    user = new User({
+      pseudo: 'nounous',
+      token: 'nounous-token-84792346',
+    });
+
+    await user.save();
+
+    userId = user._id.toString();
+    pseudo = user.pseudo;
+
+    userNotInGame = new User({
+      pseudo: 'Intruder',
+      token: 'intruder-token',
+    });
+
+    await userNotInGame.save();
 
     game = new Game({
       owner: userId,
@@ -813,17 +860,24 @@ describe('UPDATE a game information /game/:id/players', () => {
     await startedGame2.save();
   });
 
+  afterEach(async () => {
+    await User.deleteMany({token: 'nounous-token-84792346'});
+    await User.deleteMany({token: 'intruder-token'});
+  });
+
   describe('Join an existing game', () => {
     it('has a list of participants, containing the current user', async () => {
-      const res = await agent
-        .put(`/game/${game.id}/players`);
+      const res = await chai.request(app)
+        .put(`/game/${game.id}/players`)
+        .set('Authorization', `Bearer ${user.token}`);
       const player
         = res.body.game.players.filter((p) => p.userID === userId )[0];
       expect(player.userID).to.equal(userId);
     });
     it('should add the new player in the game', async () => {
-      const res = await agent
-        .put(`/game/${waitingGameStart.id}/players`);
+      const res = await chai.request(app)
+        .put(`/game/${waitingGameStart.id}/players`)
+        .set('Authorization', `Bearer ${user.token}`);
 
       const player
         = res.body.game.players.filter((p) => p.userID === userId )[0];
@@ -832,12 +886,13 @@ describe('UPDATE a game information /game/:id/players', () => {
     });
     // eslint-disable-next-line max-len
     it('should not be possible to join if the game already began, or is finished', async () => {
-      const res = await agent
-        .put(`/game/${startedGame2.id}/players`);
+      const res = await chai.request(app)
+        .put(`/game/${startedGame2.id}/players`)
+        .set('Authorization', `Bearer ${user.token}`);
       expect(res.status).to.equal(400);
     });
     // it('should not accept more than 6 players', async () => {
-    //     const res = await agent
+    //     const res = await chai.request(app)
     //     .get(`/game/${gameWith6Players.id}`);
     //     expect(res.status).to.equal(400);
     // });
