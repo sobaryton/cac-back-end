@@ -10,6 +10,7 @@ exports.createAGame = (req, res, next) => {
   newGame.players.push({
     userID: creator,
     pseudo: pseudoPlayer,
+    changeCards: 0,
     playerCards: [],
   });
   newGame.owner = creator;
@@ -104,6 +105,7 @@ exports.joinAGame = (req, res, next) => {
           const newPlayer = {
             userID: user,
             pseudo: pseudoPlayer,
+            changeCards: 0,
             playerCards: [],
           };
           const newPlayers = [...game.players];
@@ -575,6 +577,111 @@ exports.voteForACard = (req, res, next) => {
       }
     }
   )
+    .catch(
+      (err) => {
+        res.status(400).json({error: err});
+      }
+    );
+};
+
+
+exports.changeACard = (req, res, next) => {
+  Game.findOne({_id: req.params.id})
+    .then(
+      (game) => {
+        const playerId = req.params.playerId;
+        const player = game.players.filter(
+          (p) => p.userID === playerId
+        )[0];
+
+        let newCardSet = [];
+        const numberCardTotal = player.playerCards.length;
+
+        // return an error if the hand is empty
+        if (numberCardTotal === 0) {
+        // the player doesn't have any more cards
+          return res.status(400).json({
+            error: `The player ${currentPlayer} can\'t change his cards, `
+            + `as he has no more cards to play`,
+          });
+        }
+
+        // if the game is finished
+        // no more amendments can be made in the hand cards
+        if (game.status === 'finished') {
+          return res.status(400).json({
+            error: `The game is finished, you can\'t change your cards.`,
+          });
+        }
+
+        // Check if the player already requested to change his cards
+        // He is allowed to do it only once
+        if (player.changeCards > 0) {
+          return res.status(400).json({
+            error: `You already changed your cards once, `
+            + `you can\'t change again your cards.`,
+          });
+        }
+
+        // Create an array with all the cards of the game
+        const oldCards = [];
+        for (let i = 0; i < game.players.length; i++) {
+          const playerCards = game.players[i].playerCards;
+          for (let j = 0; j < playerCards.length; j++) {
+            oldCards.push(playerCards[j].id);
+          }
+        }
+
+        // Take the cards in the game already played
+        for (let i = 0; i < game.rounds.length; i++) {
+          const playedCards = game.rounds[i].playedCards;
+          for (let j = 0; j < playedCards.length; j++) {
+            oldCards.push(playedCards[j].handCard.id);
+          }
+        }
+
+        let handCardsNew
+        = HandCards.HandCards.cards
+          .map(
+            (text, id) => ({id, text})
+          ).filter(
+            (c) => oldCards.indexOf(c.id) === -1
+          );
+        handCardsNew = shuffle(handCardsNew);
+
+        newCardSet = handCardsNew.slice(0, numberCardTotal);
+
+        const newChangeCards = player.changeCards + 1;
+
+        const newPlayer = {
+          userID: req.user.id,
+          pseudo: req.user.pseudo,
+          changeCards: newChangeCards,
+          playerCards: newCardSet,
+        };
+
+        let newPlayers = [...game.players];
+        newPlayers = newPlayers.filter((p) => p.userID !== playerId);
+        newPlayers.push(newPlayer);
+
+        Game.findOneAndUpdate(
+          {_id: req.params.id},
+          {players: newPlayers},
+          {new: true, useFindAndModify: false}
+        ).then(
+          (game) => {
+            res.status(200).json({
+              message: 'Cards replaced',
+              game: game,
+            });
+          }
+        ).catch(
+          (err) => {
+            res.status(400).json({error: err});
+          }
+        );
+      }
+    )
     .catch(
       (err) => {
         res.status(400).json({error: err});

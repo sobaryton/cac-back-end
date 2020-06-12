@@ -59,6 +59,7 @@ describe('GET a game information /game/:id', () => {
         {
           userID: 'nico',
           pseudo: 'niKKo',
+          changeCards: 0,
           playerCards: [],
         },
       ],
@@ -72,6 +73,7 @@ describe('GET a game information /game/:id', () => {
         {
           userID: user._id.toString(),
           pseudo: user.pseudo,
+          changeCards: 0,
           playerCards: [
             {text: 'id1', id: 0},
             {text: 'id2', id: 1},
@@ -83,6 +85,7 @@ describe('GET a game information /game/:id', () => {
         {
           userID: 'nico',
           pseudo: 'niKKo',
+          changeCards: 0,
           playerCards: [
             {text: 'id6', id: 5},
             {text: 'id7', id: 6},
@@ -132,6 +135,7 @@ describe('GET a game information /game/:id', () => {
         {
           userID: 'nico',
           pseudo: 'niKKo',
+          changeCards: 0,
           playerCards: [
             {text: 'id6', id: 5},
             {text: 'id7', id: 6},
@@ -143,6 +147,7 @@ describe('GET a game information /game/:id', () => {
         {
           userID: 'blablateur',
           pseudo: 'bbee',
+          changeCards: 0,
           playerCards: [
             {text: 'id1', id: 0},
             {text: 'id2', id: 1},
@@ -162,31 +167,37 @@ describe('GET a game information /game/:id', () => {
         {
           userID: 'nico',
           pseudo: 'niKKo',
+          changeCards: 0,
           playerCards: [],
         },
         {
           userID: 'blablateur',
           pseudo: 'bbee',
+          changeCards: 0,
           playerCards: [],
         },
         {
           userID: 'blablaafwcwteur',
           pseudo: 'aclndlc',
+          changeCards: 0,
           playerCards: [],
         },
         {
           userID: 'blablsdfwvateur',
           pseudo: 'alkc',
+          changeCards: 0,
           playerCards: [],
         },
         {
           userID: 'blablatedsfegur',
           pseudo: 'lnclwjcn',
+          changeCards: 0,
           playerCards: [],
         },
         {
           userID: 'blabldsateur',
           pseudo: 'sldncln',
+          changeCards: 0,
           playerCards: [],
         },
       ],
@@ -268,6 +279,7 @@ describe('GET a game information /game/:id', () => {
           {
             userID: user._id.toString(),
             pseudo: user.pseudo,
+            changeCards: 0,
             playerCards: [
               {text: 'id1', id: 0},
               {text: 'id2', id: 1},
@@ -279,6 +291,7 @@ describe('GET a game information /game/:id', () => {
           {
             userID: 'nico',
             pseudo: 'niKKo',
+            changeCards: 0,
             playerCards: [
               {text: 'id6', id: 5},
               {text: 'id7', id: 6},
@@ -409,6 +422,7 @@ describe('GET a game information /game/:id', () => {
           {
             userID: 'soso',
             pseudo: 'SoSo',
+            changeCards: 0,
             playerCards: [
               {text: 'id1', id: 0},
               {text: 'id2', id: 1},
@@ -420,6 +434,7 @@ describe('GET a game information /game/:id', () => {
           {
             userID: 'nico',
             pseudo: 'niKKo',
+            changeCards: 0,
             playerCards: [
               {text: 'id6', id: 5},
               {text: 'id7', id: 6},
@@ -550,6 +565,7 @@ describe('GET a game information /game/:id', () => {
           {
             userID: 'soso',
             pseudo: 'SoSo',
+            changeCards: 0,
             playerCards: [
               {text: 'id1', id: 0},
               {text: 'id2', id: 1},
@@ -561,6 +577,7 @@ describe('GET a game information /game/:id', () => {
           {
             userID: 'nico',
             pseudo: 'niKKo',
+            changeCards: 0,
             playerCards: [
               {text: 'id6', id: 5},
               {text: 'id7', id: 6},

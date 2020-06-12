@@ -74,6 +74,7 @@ describe('POST a game information /game/:id', () => {
         {
           userID: userId,
           pseudo: pseudo,
+          changeCards: 0,
           playerCards: [
             {text: 'id1', id: 0},
             {text: 'id2', id: 1},
@@ -85,6 +86,7 @@ describe('POST a game information /game/:id', () => {
         {
           userID: 'nico',
           pseudo: 'niKKo',
+          changeCards: 0,
           playerCards: [
             {text: 'id6', id: 5},
             {text: 'id7', id: 6},
@@ -104,6 +106,7 @@ describe('POST a game information /game/:id', () => {
         {
           userID: userId,
           pseudo: pseudo,
+          changeCards: 0,
           playerCards: [
             {text: 'id2', id: 1},
             {text: 'id3', id: 2},
@@ -114,6 +117,7 @@ describe('POST a game information /game/:id', () => {
         {
           userID: 'nico',
           pseudo: 'niKKo',
+          changeCards: 0,
           playerCards: [
             {text: 'id7', id: 6},
             {text: 'id8', id: 7},
@@ -150,6 +154,7 @@ describe('POST a game information /game/:id', () => {
         {
           userID: userId,
           pseudo: pseudo,
+          changeCards: 0,
           playerCards: [
             {text: 'id2', id: 1},
             {text: 'id3', id: 2},
@@ -160,6 +165,7 @@ describe('POST a game information /game/:id', () => {
         {
           userID: 'nico',
           pseudo: 'niKKo',
+          changeCards: 0,
           playerCards: [
             {text: 'id7', id: 6},
             {text: 'id8', id: 7},
