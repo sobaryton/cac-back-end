@@ -1209,6 +1209,14 @@ describe('UPDATE a card for player /:id/players/:playerId/playerCards', () => {
       expect(player.playerCards.length).to.equal(cardNumberBefore);
     });
 
+    it('should return an error if the playerId is not the userId', async () => {
+      const res = await chai.request(app)
+        .put(`/game/${startedGame1.id}/players/Nicoco/playerCards`)
+        .set('Authorization', `Bearer ${user.token}`);
+
+      expect(res.status).to.equal(400);
+    });
+
     // eslint-disable-next-line max-len
     it('should replace the card set with a new set of new cards not present in the hands of the player', async () => {
       const res = await chai.request(app)

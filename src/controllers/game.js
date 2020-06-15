@@ -590,6 +590,14 @@ exports.changeACard = (req, res, next) => {
     .then(
       (game) => {
         const playerId = req.user.id;
+
+        // return an error if the player Id is different from te user id
+        if (playerId !== req.params.playerId) {
+          return res.status(400).json({
+            error: `The player doesn't match the user Id `,
+          });
+        }
+
         const player = game.players.filter(
           (p) => p.userID === playerId
         )[0];
