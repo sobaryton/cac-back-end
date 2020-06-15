@@ -589,7 +589,7 @@ exports.changeACard = (req, res, next) => {
   Game.findOne({_id: req.params.id})
     .then(
       (game) => {
-        const playerId = req.params.playerId;
+        const playerId = req.user.id;
         const player = game.players.filter(
           (p) => p.userID === playerId
         )[0];
@@ -606,11 +606,11 @@ exports.changeACard = (req, res, next) => {
           });
         }
 
-        // if the game is finished
+        // if the game is not in progress
         // no more amendments can be made in the hand cards
-        if (game.status === 'finished') {
+        if (game.status !== 'in progress') {
           return res.status(400).json({
-            error: `The game is finished, you can\'t change your cards.`,
+            error: `The game is not in progress, you can\'t change your cards.`,
           });
         }
 
