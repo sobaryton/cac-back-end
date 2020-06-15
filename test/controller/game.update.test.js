@@ -77,11 +77,13 @@ describe('UPDATE a game information /game/:id', () => {
           {
             userID: 'soso',
             pseudo: 'soso',
+            changeCards: 0,
             playerCards: [],
           },
           {
             userID: 'nico',
             pseudo: 'nico',
+            changeCards: 0,
             playerCards: [],
           },
         ],
@@ -95,11 +97,13 @@ describe('UPDATE a game information /game/:id', () => {
           {
             userID: userId,
             pseudo: pseudo,
+            changeCards: 0,
             playerCards: [],
           },
           {
             userID: 'nico',
             pseudo: 'niccco',
+            changeCards: 0,
             playerCards: [],
           },
         ],
@@ -113,6 +117,7 @@ describe('UPDATE a game information /game/:id', () => {
           {
             userID: userId,
             pseudo: pseudo,
+            changeCards: 0,
             playerCards: [
               {text: 'id2', id: 1},
               {text: 'id3', id: 2},
@@ -123,6 +128,7 @@ describe('UPDATE a game information /game/:id', () => {
           {
             userID: 'nico',
             pseudo: 'nico',
+            changeCards: 0,
             playerCards: [
               {text: 'id7', id: 6},
               {text: 'id8', id: 7},
@@ -213,6 +219,7 @@ describe('UPDATE a game information /game/:id', () => {
           {
             userID: userId,
             pseudo: pseudo,
+            changeCards: 0,
             playerCards: [
               {text: 'id2', id: 1},
               {text: 'id3', id: 2},
@@ -223,6 +230,7 @@ describe('UPDATE a game information /game/:id', () => {
           {
             userID: 'nico',
             pseudo: 'nikkko',
+            changeCards: 0,
             playerCards: [
               {text: 'id7', id: 6},
               {text: 'id8', id: 7},
@@ -284,6 +292,7 @@ describe('UPDATE a game information /game/:id', () => {
           {
             userID: userId,
             pseudo: pseudo,
+            changeCards: 0,
             playerCards: [
               {text: 'id2', id: 1},
               {text: 'id3', id: 2},
@@ -294,6 +303,7 @@ describe('UPDATE a game information /game/:id', () => {
           {
             userID: 'nico',
             pseudo: 'ojononn',
+            changeCards: 0,
             playerCards: [
               {text: 'id7', id: 6},
               {text: 'id8', id: 7},
@@ -333,6 +343,7 @@ describe('UPDATE a game information /game/:id', () => {
           {
             userID: userId,
             pseudo: pseudo,
+            changeCards: 0,
             playerCards: [
               {text: 'id2', id: 1},
               {text: 'id3', id: 2},
@@ -343,6 +354,7 @@ describe('UPDATE a game information /game/:id', () => {
           {
             userID: 'nico',
             pseudo: 'niccocoo',
+            changeCards: 0,
             playerCards: [
               {text: 'id7', id: 6},
               {text: 'id8', id: 7},
@@ -382,6 +394,7 @@ describe('UPDATE a game information /game/:id', () => {
           {
             userID: userId,
             pseudo: pseudo,
+            changeCards: 0,
             playerCards: [
               {text: 'id1', id: 0},
               {text: 'id2', id: 1},
@@ -393,6 +406,7 @@ describe('UPDATE a game information /game/:id', () => {
           {
             userID: 'nico',
             pseudo: 'nicooo',
+            changeCards: 0,
             playerCards: [
               {text: 'id6', id: 5},
               {text: 'id7', id: 6},
@@ -520,6 +534,7 @@ describe('UPDATE a game information /game/:id', () => {
           {
             userID: userId,
             pseudo: pseudo,
+            changeCards: 0,
             playerCards: [
               {text: 'id1', id: 0},
               {text: 'id2', id: 1},
@@ -531,6 +546,7 @@ describe('UPDATE a game information /game/:id', () => {
           {
             userID: 'nico',
             pseudo: 'nicooo',
+            changeCards: 0,
             playerCards: [
               {text: 'id6', id: 5},
               {text: 'id7', id: 6},
@@ -823,6 +839,7 @@ describe('UPDATE a game information /game/:id/players', () => {
         {
           userID: 'nico',
           pseudo: 'niKKo',
+          changeCards: 0,
           playerCards: [],
         },
       ],
@@ -836,6 +853,7 @@ describe('UPDATE a game information /game/:id/players', () => {
         {
           userID: 'nico',
           pseudo: 'niKKo',
+          changeCards: 0,
           playerCards: [
             {text: 'id6', id: 5},
             {text: 'id7', id: 6},
@@ -847,6 +865,7 @@ describe('UPDATE a game information /game/:id/players', () => {
         {
           userID: 'blablateur',
           pseudo: 'bbee',
+          changeCards: 0,
           playerCards: [
             {text: 'id1', id: 0},
             {text: 'id2', id: 1},
@@ -896,5 +915,400 @@ describe('UPDATE a game information /game/:id/players', () => {
     //     .get(`/game/${gameWith6Players.id}`);
     //     expect(res.status).to.equal(400);
     // });
+  });
+});
+
+describe('UPDATE a card for player /:id/players/:playerId/playerCards', () => {
+  let userId;
+  let user;
+  let pseudo;
+  let game;
+  let startedGame1;
+  let startedGame2;
+  let startedGame3;
+  let gameFinishedCompleted;
+
+  beforeEach(async () => {
+    await User.deleteMany({token: 'nounous-token-84792346'});
+
+    user = new User({
+      pseudo: 'nounous',
+      token: 'nounous-token-84792346',
+    });
+
+    await user.save();
+
+    userId = user._id.toString();
+    pseudo = user.pseudo;
+
+    game = new Game({
+      owner: userId,
+    });
+    await game.save();
+
+    startedGame1 = new Game({
+      status: 'in progress',
+      owner: 'nico',
+      players: [
+        {
+          userID: 'nico',
+          pseudo: 'niKKo',
+          changeCards: 0,
+          playerCards: [
+            {text: 'id1', id: 0},
+            {text: 'id2', id: 1},
+            {text: 'id3', id: 2},
+            {text: 'id5', id: 4},
+          ],
+        },
+        {
+          userID: userId,
+          pseudo: pseudo,
+          changeCards: 0,
+          playerCards: [
+            {text: 'id6', id: 5},
+            {text: 'id8', id: 7},
+            {text: 'id9', id: 8},
+            {text: 'id10', id: 9},
+          ],
+        },
+      ],
+      rounds: [
+        {
+          roundStatus: 'in progress',
+          roundCard: {sentence: 'blablabla'},
+          playedCards: [
+            {
+              playerId: userId,
+              votes: [{
+                emotion: 'funny',
+                playerId: 'nico',
+              }],
+              handCard: {id: 6, text: 'id7'},
+            },
+            {
+              playerId: 'nico',
+              votes: [],
+              handCard: {id: 3, text: 'id4'},
+            },
+          ],
+        },
+      ],
+    });
+    await startedGame1.save();
+
+    startedGame2 = new Game({
+      status: 'in progress',
+      owner: 'nico',
+      players: [
+        {
+          userID: 'nico',
+          pseudo: 'niKKo',
+          changeCards: 0,
+          playerCards: [
+            {text: 'id1', id: 0},
+            {text: 'id2', id: 1},
+            {text: 'id3', id: 2},
+            {text: 'id4', id: 3},
+            {text: 'id5', id: 4},
+          ],
+        },
+        {
+          userID: userId,
+          pseudo: pseudo,
+          changeCards: 0,
+          playerCards: [
+            {text: 'id6', id: 5},
+            {text: 'id7', id: 6},
+            {text: 'id8', id: 7},
+            {text: 'id9', id: 8},
+            {text: 'id10', id: 9},
+          ],
+        },
+      ],
+    });
+    await startedGame2.save();
+
+    startedGame3 = new Game({
+      status: 'in progress',
+      owner: 'nico',
+      players: [
+        {
+          userID: 'nico',
+          pseudo: 'niKKo',
+          changeCards: 0,
+          playerCards: [
+            {text: 'id1', id: 0},
+            {text: 'id2', id: 1},
+            {text: 'id3', id: 2},
+            {text: 'id4', id: 3},
+            {text: 'id5', id: 4},
+          ],
+        },
+        {
+          userID: userId,
+          pseudo: pseudo,
+          changeCards: 1,
+          playerCards: [
+            {text: 'id6', id: 5},
+            {text: 'id7', id: 6},
+            {text: 'id8', id: 7},
+            {text: 'id9', id: 8},
+            {text: 'id10', id: 9},
+          ],
+        },
+      ],
+    });
+    await startedGame3.save();
+
+    gameFinishedCompleted = new Game({
+      status: 'finished',
+      owner: userId,
+      players: [
+        {
+          userID: userId,
+          pseudo: pseudo,
+          changeCards: 0,
+          playerCards: [],
+        },
+        {
+          userID: 'nico',
+          pseudo: 'nicooo',
+          changeCards: 0,
+          playerCards: [],
+        },
+      ],
+      rounds: [
+        {
+          roundStatus: 'finished',
+          roundCard: {sentence: 'blablabla1'},
+          playedCards: [
+            {
+              playerId: userId,
+              votes: [{
+                emotion: 'funny',
+                playerId: 'nico',
+              }],
+              handCard: {id: 0, text: 'id1'},
+            },
+            {
+              playerId: 'nico',
+              votes: [{
+                emotion: 'funny',
+                playerId: userId,
+              }],
+              handCard: {id: 5, text: 'id6'},
+            },
+          ],
+        },
+        {
+          roundStatus: 'finished',
+          roundCard: {sentence: 'blablabla2'},
+          playedCards: [
+            {
+              playerId: userId,
+              votes: [{
+                emotion: 'funny',
+                playerId: 'nico',
+              }],
+              handCard: {id: 1, text: 'id2'},
+            },
+            {
+              playerId: 'nico',
+              votes: [{
+                emotion: 'funny',
+                playerId: userId,
+              }],
+              handCard: {id: 6, text: 'id7'},
+            },
+          ],
+        },
+        {
+          roundStatus: 'finished',
+          roundCard: {sentence: 'blablabla3'},
+          playedCards: [
+            {
+              playerId: userId,
+              votes: [{
+                emotion: 'funny',
+                playerId: 'nico',
+              }],
+              handCard: {id: 2, text: 'id3'},
+            },
+            {
+              playerId: 'nico',
+              votes: [{
+                emotion: 'funny',
+                playerId: userId,
+              }],
+              handCard: {id: 7, text: 'id8'},
+            },
+          ],
+        }, {
+          roundStatus: 'finished',
+          roundCard: {sentence: 'blablabla4'},
+          playedCards: [
+            {
+              playerId: userId,
+              votes: [{
+                emotion: 'funny',
+                playerId: 'nico',
+              }],
+              handCard: {id: 3, text: 'id4'},
+            },
+            {
+              playerId: 'nico',
+              votes: [{
+                emotion: 'funny',
+                playerId: userId,
+              }],
+              handCard: {id: 8, text: 'id9'},
+            },
+          ],
+        },
+        {
+          roundStatus: 'finished',
+          roundCard: {sentence: 'blablabla5'},
+          playedCards: [
+            {
+              playerId: userId,
+              votes: [{
+                emotion: 'funny',
+                playerId: 'nico',
+              }],
+              handCard: {id: 4, text: 'id5'},
+            },
+            {
+              playerId: 'nico',
+              votes: [{
+                emotion: 'funny',
+                playerId: userId,
+              }],
+              handCard: {id: 9, text: 'id10'},
+            },
+          ],
+        },
+      ],
+    });
+    await gameFinishedCompleted.save();
+  });
+
+  afterEach(async () => {
+    await User.deleteMany({token: 'nounous-token-84792346'});
+  });
+
+  describe('Change a card in the player hand', () => {
+    it('should create a new set with the same length as before', async () => {
+      const res = await chai.request(app)
+        .put(`/game/${startedGame1.id}/players/${userId}/playerCards`)
+        .set('Authorization', `Bearer ${user.token}`);
+      const player
+        = res.body.game.players.filter((p) => p.userID === userId )[0];
+      const cardNumberBefore = startedGame1.players[0].playerCards.length;
+      expect(player.userID).to.equal(userId);
+      expect(player.playerCards.length).to.equal(cardNumberBefore);
+    });
+
+    it('should return an error if the playerId is not the userId', async () => {
+      const res = await chai.request(app)
+        .put(`/game/${startedGame1.id}/players/Nicoco/playerCards`)
+        .set('Authorization', `Bearer ${user.token}`);
+
+      expect(res.status).to.equal(400);
+    });
+
+    // eslint-disable-next-line max-len
+    it('should replace the card set with a new set of new cards not present in the hands of the player', async () => {
+      const res = await chai.request(app)
+        .put(`/game/${startedGame2.id}/players/${userId}/playerCards`)
+        .set('Authorization', `Bearer ${user.token}`);
+      const player
+        = res.body.game.players.filter((p) => p.userID === userId )[0];
+
+      const oldCards = startedGame2.players.filter(
+        (p) => p.userID === userId
+      )[0].playerCards;
+      const oldCardTextTable = [];
+      for (let i = 0; i < oldCards.length; i++) {
+        oldCardTextTable.push(oldCards[i].id);
+      }
+
+      const cards = player.playerCards;
+      cards.forEach( (card) => {
+        const cardText = card.id;
+        expect(oldCardTextTable).to.not.include(cardText);
+      });
+    });
+
+    // eslint-disable-next-line max-len
+    it('should replace the card set with a new set of cards not present in the game', async () => {
+      const res = await chai.request(app)
+        .put(`/game/${startedGame1.id}/players/${userId}/playerCards`)
+        .set('Authorization', `Bearer ${user.token}`);
+
+      // Create a table with all the card ids in the game
+      const oldCardsTable = [];
+      // Check in the hands of all players
+      for (let i = 0; i < startedGame1.players.length; i++) {
+        const playerCards = startedGame1.players[i].playerCards;
+        for (let j = 0; j < playerCards.length; j++) {
+          oldCardsTable.push(playerCards[j].id);
+        }
+      }
+      // Check the played cards in the rounds
+      for (let i = 0; i < startedGame1.rounds.length; i++) {
+        const playedCards = startedGame1.rounds[i].playedCards;
+        for (let j = 0; j < playedCards.length; j++) {
+          oldCardsTable.push(playedCards[j].handCard.id);
+        }
+      }
+
+      const newPlayerCards
+        = res.body.game.players.filter(
+          (p) => p.userID === userId
+        )[0].playerCards;
+      newPlayerCards.forEach( (card) => {
+        const cardId = card.id;
+        expect(oldCardsTable).to.not.include(cardId);
+      });
+    });
+
+    it('should not change any card if the player hand is empty', async () => {
+      const res = await chai.request(app)
+        .put(`/game/${gameFinishedCompleted.id}/players/${userId}/playerCards`)
+        .set('Authorization', `Bearer ${user.token}`);
+
+      expect(res.status).to.equal(400);
+    });
+
+    it('should not change any card if the game is finished', async () => {
+      const res = await chai.request(app)
+        .put(`/game/${gameFinishedCompleted.id}/players/${userId}/playerCards`)
+        .set('Authorization', `Bearer ${user.token}`);
+
+      expect(res.status).to.equal(400);
+    });
+
+    it('should increase +1 the changeCards number of the player', async () => {
+      const res = await chai.request(app)
+        .put(`/game/${startedGame2.id}/players/${userId}/playerCards`)
+        .set('Authorization', `Bearer ${user.token}`);
+
+      const expectedchangeCards = startedGame2.players.filter(
+        (p) => p.userID === userId
+      )[0].changeCards + 1;
+      const player
+      = res.body.game.players.filter((p) => p.userID === userId )[0];
+      expect(player.changeCards).to.equal(expectedchangeCards);
+    });
+
+    // eslint-disable-next-line max-len
+    it('should not change any card if the player already changed the card set once', async () => {
+      const res = await chai.request(app)
+        .put(`/game/${startedGame3.id}/players/${userId}/playerCards`)
+        .set('Authorization', `Bearer ${user.token}`);
+
+      expect(res.status).to.equal(400);
+    });
   });
 });
