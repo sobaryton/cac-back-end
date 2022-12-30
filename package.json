@@ -35,6 +35,6 @@
     "chai-subset": "^1.6.0",
     "eslint": "^7.0.0",
     "eslint-config-google": "^0.14.0",
-    "mocha": "^7.1.2"
+    "mocha": "^10.2.0"
   }
 }
